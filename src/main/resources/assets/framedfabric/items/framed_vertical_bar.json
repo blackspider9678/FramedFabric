@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "framedfabric:item/framed_bar"
+    "model": "framedfabric:item/framed_vertical_bar"
   }
 }

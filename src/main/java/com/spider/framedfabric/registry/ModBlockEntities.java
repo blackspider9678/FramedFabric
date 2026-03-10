@@ -11,17 +11,19 @@ import net.minecraft.util.Identifier;
 public final class ModBlockEntities {
     private ModBlockEntities() {}
 
-    public static final BlockEntityType<FramedBlockEntity> FRAMED =
-            Registry.register(
-                    Registries.BLOCK_ENTITY_TYPE,
-                    Identifier.of(FramedFabric.MOD_ID, "framed"),
-                    FabricBlockEntityTypeBuilder.create(
-                            FramedBlockEntity::new,
-                            ModBlocks.FRAMED_BLOCK,
-                            ModBlocks.FRAMED_SLAB,
-                            ModBlocks.FRAMED_STAIRS
-                    ).build()
-            );
+    public static BlockEntityType<FramedBlockEntity> FRAMED;
 
-    public static void init() {}
+    public static void init() {
+        if (FRAMED != null) return;
+
+        FRAMED = Registry.register(
+                Registries.BLOCK_ENTITY_TYPE,
+                Identifier.of(FramedFabric.MOD_ID, "framed"),
+                FabricBlockEntityTypeBuilder
+                        .create((pos, state) -> new FramedBlockEntity(FRAMED, pos, state),
+                                ModBlocks.framedAllArray()
+                        )
+                        .build()
+        );
+    }
 }

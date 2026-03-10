@@ -7,13 +7,6 @@ public enum VerticalSlabType implements StringIdentifiable {
     DOUBLE("double");
 
     private final String name;
-
-    VerticalSlabType(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String asString() {
-        return name;
-    }
+    VerticalSlabType(String name) { this.name = name; }
+    @Override public String asString() { return name; }
 }
