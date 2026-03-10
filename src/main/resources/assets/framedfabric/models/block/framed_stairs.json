@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/stairs",
+  "render_type": "translucent",
+  "textures": {
+    "bottom": "framedfabric:block/framed_texture",
+    "top": "framedfabric:block/framed_texture",
+    "side": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  }
+}

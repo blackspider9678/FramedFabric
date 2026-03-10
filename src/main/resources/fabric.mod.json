@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "framedfabric",
+  "version": "${version}",
+  "name": "FramedFabric",
+  "description": "satisfactory oreposits in the world of minecraft",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/framedfabric/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.spider.framedfabric.client.FramedfabricClient"
+    ],
+    "main": [
+      "com.spider.framedfabric.Framedfabric"
+    ]
+  },
+  "mixins": [
+    "framedfabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

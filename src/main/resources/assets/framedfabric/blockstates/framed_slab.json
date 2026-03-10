@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "type=bottom,has_camo=false": { "model": "framedfabric:block/framed_slab" },
+
+    "type=top,has_camo=false": { "model": "framedfabric:block/framed_slab_top" },
+
+    "type=double,has_camo=false": { "model": "framedfabric:block/framed_slab_double" },
+
+    "type=bottom,has_camo=true,rot=1": { "model": "framedfabric:block/empty" },
+    "type=bottom,has_camo=true,rot=2": { "model": "framedfabric:block/empty", "y": 90 },
+    "type=bottom,has_camo=true,rot=3": { "model": "framedfabric:block/empty", "y": 180 },
+    "type=bottom,has_camo=true,rot=4": { "model": "framedfabric:block/empty", "y": 270 },
+    "type=bottom,has_camo=true,rot=5": { "model": "framedfabric:block/empty", "x": 90 },
+    "type=bottom,has_camo=true,rot=6": { "model": "framedfabric:block/empty", "x": 270 },
+
+    "type=top,has_camo=true,rot=1": { "model": "framedfabric:block/empty" },
+    "type=top,has_camo=true,rot=2": { "model": "framedfabric:block/empty", "y": 90 },
+    "type=top,has_camo=true,rot=3": { "model": "framedfabric:block/empty", "y": 180 },
+    "type=top,has_camo=true,rot=4": { "model": "framedfabric:block/empty", "y": 270 },
+    "type=top,has_camo=true,rot=5": { "model": "framedfabric:block/empty", "x": 90 },
+    "type=top,has_camo=true,rot=6": { "model": "framedfabric:block/empty", "x": 270 },
+
+    "type=double,has_camo=true,rot=1": { "model": "framedfabric:block/empty" },
+    "type=double,has_camo=true,rot=2": { "model": "framedfabric:block/empty", "y": 90 },
+    "type=double,has_camo=true,rot=3": { "model": "framedfabric:block/empty", "y": 180 },
+    "type=double,has_camo=true,rot=4": { "model": "framedfabric:block/empty", "y": 270 },
+    "type=double,has_camo=true,rot=5": { "model": "framedfabric:block/empty", "x": 90 },
+    "type=double,has_camo=true,rot=6": { "model": "framedfabric:block/empty", "x": 270 }
+  }
+}

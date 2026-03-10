@@ -1,0 +1,43 @@
+{
+  "variants": {
+    "facing=north,half=bottom,shape=single": { "model": "framedfabric:block/your_strip/single_bottom" },
+    "facing=east,half=bottom,shape=single":  { "model": "framedfabric:block/your_strip/single_bottom", "y": 90 },
+    "facing=south,half=bottom,shape=single": { "model": "framedfabric:block/your_strip/single_bottom", "y": 180 },
+    "facing=west,half=bottom,shape=single":  { "model": "framedfabric:block/your_strip/single_bottom", "y": 270 },
+
+    "facing=north,half=bottom,shape=left":   { "model": "framedfabric:block/your_strip/left_bottom" },
+    "facing=east,half=bottom,shape=left":    { "model": "framedfabric:block/your_strip/left_bottom", "y": 90 },
+    "facing=south,half=bottom,shape=left":   { "model": "framedfabric:block/your_strip/left_bottom", "y": 180 },
+    "facing=west,half=bottom,shape=left":    { "model": "framedfabric:block/your_strip/left_bottom", "y": 270 },
+
+    "facing=north,half=bottom,shape=right":  { "model": "framedfabric:block/your_strip/right_bottom" },
+    "facing=east,half=bottom,shape=right":   { "model": "framedfabric:block/your_strip/right_bottom", "y": 90 },
+    "facing=south,half=bottom,shape=right":  { "model": "framedfabric:block/your_strip/right_bottom", "y": 180 },
+    "facing=west,half=bottom,shape=right":   { "model": "framedfabric:block/your_strip/right_bottom", "y": 270 },
+
+    "facing=north,half=bottom,shape=middle": { "model": "framedfabric:block/your_strip/middle_bottom" },
+    "facing=east,half=bottom,shape=middle":  { "model": "framedfabric:block/your_strip/middle_bottom", "y": 90 },
+    "facing=south,half=bottom,shape=middle": { "model": "framedfabric:block/your_strip/middle_bottom", "y": 180 },
+    "facing=west,half=bottom,shape=middle":  { "model": "framedfabric:block/your_strip/middle_bottom", "y": 270 },
+
+    "facing=north,half=top,shape=single": { "model": "framedfabric:block/your_strip/single_top" },
+    "facing=east,half=top,shape=single":  { "model": "framedfabric:block/your_strip/single_top", "y": 90 },
+    "facing=south,half=top,shape=single": { "model": "framedfabric:block/your_strip/single_top", "y": 180 },
+    "facing=west,half=top,shape=single":  { "model": "framedfabric:block/your_strip/single_top", "y": 270 },
+
+    "facing=north,half=top,shape=left":   { "model": "framedfabric:block/your_strip/left_top" },
+    "facing=east,half=top,shape=left":    { "model": "framedfabric:block/your_strip/left_top", "y": 90 },
+    "facing=south,half=top,shape=left":   { "model": "framedfabric:block/your_strip/left_top", "y": 180 },
+    "facing=west,half=top,shape=left":    { "model": "framedfabric:block/your_strip/left_top", "y": 270 },
+
+    "facing=north,half=top,shape=right":  { "model": "framedfabric:block/your_strip/right_top" },
+    "facing=east,half=top,shape=right":   { "model": "framedfabric:block/your_strip/right_top", "y": 90 },
+    "facing=south,half=top,shape=right":  { "model": "framedfabric:block/your_strip/right_top", "y": 180 },
+    "facing=west,half=top,shape=right":   { "model": "framedfabric:block/your_strip/right_top", "y": 270 },
+
+    "facing=north,half=top,shape=middle": { "model": "framedfabric:block/your_strip/middle_top" },
+    "facing=east,half=top,shape=middle":  { "model": "framedfabric:block/your_strip/middle_top", "y": 90 },
+    "facing=south,half=top,shape=middle": { "model": "framedfabric:block/your_strip/middle_top", "y": 180 },
+    "facing=west,half=top,shape=middle":  { "model": "framedfabric:block/your_strip/middle_top", "y": 270 }
+  }
+}

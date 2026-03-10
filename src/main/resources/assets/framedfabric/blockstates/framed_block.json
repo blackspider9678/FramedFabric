@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "has_camo=false": { "model": "framedfabric:block/framed_block" },
+
+    "has_camo=true,rot=1": { "model": "framedfabric:block/empty" },
+    "has_camo=true,rot=2": { "model": "framedfabric:block/empty", "y": 90 },
+    "has_camo=true,rot=3": { "model": "framedfabric:block/empty", "y": 180 },
+    "has_camo=true,rot=4": { "model": "framedfabric:block/empty", "y": 270 },
+    "has_camo=true,rot=5": { "model": "framedfabric:block/empty", "x": 90 },
+    "has_camo=true,rot=6": { "model": "framedfabric:block/empty", "x": 270 }
+  }
+}

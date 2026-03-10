@@ -1,0 +1,21 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "all": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  },
+  "elements": [
+    {
+      "from": [8, 0, 8],
+      "to": [16, 16, 16],
+      "faces": {
+        "north": { "texture": "#all" },
+        "east":  { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "up":    { "texture": "#all" },
+        "down":  { "texture": "#all" }
+      }
+    }
+  ]
+}
