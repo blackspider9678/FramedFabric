@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "axis=y": { "model": "framedfabric:block/framed_large_post" },
+    "axis=x": { "model": "framedfabric:block/framed_large_post_x" },
+    "axis=z": { "model": "framedfabric:block/framed_large_post_z" }
+  }
+}

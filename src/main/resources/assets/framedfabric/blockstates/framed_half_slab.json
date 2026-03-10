@@ -1,0 +1,13 @@
+{
+  "multipart": [
+    { "when": { "half": "bottom", "facing": "south" }, "apply": { "model": "framedfabric:block/framed_half_slab", "y": 0 } },
+    { "when": { "half": "bottom", "facing": "east"  }, "apply": { "model": "framedfabric:block/framed_half_slab", "y": 270 } },
+    { "when": { "half": "bottom", "facing": "north" }, "apply": { "model": "framedfabric:block/framed_half_slab", "y": 180 } },
+    { "when": { "half": "bottom", "facing": "west"  }, "apply": { "model": "framedfabric:block/framed_half_slab", "y": 90 } },
+
+    { "when": { "half": "top", "facing": "south" }, "apply": { "model": "framedfabric:block/framed_half_slab", "x": 180, "y": 180 } },
+    { "when": { "half": "top", "facing": "east"  }, "apply": { "model": "framedfabric:block/framed_half_slab", "x": 180, "y": 90 } },
+    { "when": { "half": "top", "facing": "north" }, "apply": { "model": "framedfabric:block/framed_half_slab", "x": 180, "y": 0 } },
+    { "when": { "half": "top", "facing": "west"  }, "apply": { "model": "framedfabric:block/framed_half_slab", "x": 180, "y": 270 } }
+  ]
+}

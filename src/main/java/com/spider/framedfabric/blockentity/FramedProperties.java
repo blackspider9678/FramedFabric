@@ -1,5 +1,5 @@
 // com/spider/framedfabric/block/FramedProperties.java
-package com.spider.framedfabric.block;
+package com.spider.framedfabric.blockentity;
 
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;

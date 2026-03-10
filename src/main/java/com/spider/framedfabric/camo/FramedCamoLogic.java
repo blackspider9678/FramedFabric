@@ -1,6 +1,7 @@
 package com.spider.framedfabric.camo;
 
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
+import com.spider.framedfabric.registry.FramedTags;
 import com.spider.framedfabric.registry.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,21 +14,18 @@ import net.minecraft.world.World;
 public final class FramedCamoLogic {
     private FramedCamoLogic() {}
 
-    /**
-     * Behavior:
-     * - If camo NOT set: right click with BlockItem consumes 1 and locks
-     * - If camo IS set: only HAMMER can unlock + refund; otherwise no interaction allowed
-     */
-    public static ActionResult onUse(World world, PlayerEntity player, Hand hand, FramedBlockEntity be, boolean blockAllWhenLocked) {
+    public static ActionResult onUse(World world, PlayerEntity player, Hand hand, FramedBlockEntity be, int partIndex, boolean blockAllWhenLocked) {
         ItemStack held = player.getStackInHand(hand);
 
-        // LOCKED: only hammer works
-        if (be.hasCamo()) {
+        if (FramedTags.isFramedStack(held)) return ActionResult.PASS;
+
+        // LOCKED (for THIS PART): only hammer works
+        if (be.hasCamoPart(partIndex)) {
             if (held.isOf(ModItems.HAMMER)) {
                 if (!world.isClient()) {
-                    ItemStack refund = camoRefundStack(be);
+                    ItemStack refund = camoRefundStack(be, partIndex);
                     giveOrDrop(player, refund);
-                    be.clearCamo();
+                    be.clearCamoPart(partIndex);
                 }
                 return ActionResult.SUCCESS;
             }
@@ -38,7 +36,7 @@ public final class FramedCamoLogic {
         if (held.getItem() instanceof BlockItem bi) {
             if (!world.isClient()) {
                 BlockState camo = bi.getBlock().getDefaultState();
-                be.setCamo(camo);
+                be.setCamoPart(partIndex, camo);
                 if (!player.isCreative()) held.decrement(1);
             }
             return ActionResult.SUCCESS;
@@ -47,9 +45,13 @@ public final class FramedCamoLogic {
         return ActionResult.PASS;
     }
 
+    public static ItemStack camoRefundStack(FramedBlockEntity be, int partIndex) {
+        return new ItemStack(be.getCamoPart(partIndex).getBlock().asItem());
+    }
+
+    // legacy helper (keeps older callers compiling if any remain)
     public static ItemStack camoRefundStack(FramedBlockEntity be) {
-        // If the camo block has no item, this will be AIR; caller should handle.
-        return new ItemStack(be.getCamo().getBlock().asItem());
+        return camoRefundStack(be, 0);
     }
 
     private static void giveOrDrop(PlayerEntity player, ItemStack stack) {

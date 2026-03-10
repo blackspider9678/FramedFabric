@@ -2,26 +2,23 @@ package com.spider.framedfabric.block;
 
 import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
+import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
-import com.spider.framedfabric.registry.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.StairsBlock;
+import com.spider.framedfabric.registry.ModBlockEntities;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedStairsBlock extends StairsBlock implements BlockEntityProvider {
     // IMPORTANT: baseState must NOT be null
@@ -29,7 +26,6 @@ public class FramedStairsBlock extends StairsBlock implements BlockEntityProvide
             createCodec(s -> new FramedStairsBlock(Blocks.OAK_PLANKS.getDefaultState(), s));
 
     public static final BooleanProperty HAS_CAMO = BooleanProperty.of("has_camo");
-    public static final IntProperty ROT = IntProperty.of("rot", 1, 6);
 
     public FramedStairsBlock(BlockState baseState, Settings settings) {
         super(baseState, settings);
@@ -56,31 +52,13 @@ public class FramedStairsBlock extends StairsBlock implements BlockEntityProvide
 
     @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new FramedBlockEntity(pos, state);
+        return new FramedBlockEntity(ModBlockEntities.FRAMED, pos, state);
     }
 
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        // Wrench cycles ROT
-        if (player.getStackInHand(Hand.MAIN_HAND).isOf(ModItems.WRENCH)
-                || player.getStackInHand(Hand.OFF_HAND).isOf(ModItems.WRENCH)) {
-
-            if (!world.isClient()) {
-                int cur = state.get(ROT);
-                int next = (cur >= 6) ? 1 : (cur + 1);
-                world.setBlockState(pos, state.with(ROT, next), 3);
-            }
-            return ActionResult.SUCCESS;
-        }
-
-        // Camo / hammer logic
-        if (!(world.getBlockEntity(pos) instanceof FramedBlockEntity be)) return ActionResult.PASS;
-
-        ActionResult r = FramedCamoLogic.onUse(world, player, Hand.MAIN_HAND, be, true);
-        if (r == ActionResult.PASS) {
-            r = FramedCamoLogic.onUse(world, player, Hand.OFF_HAND, be, true);
-        }
-        return r;
+        FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
+        return FramedUseHandler.handleUse(state, world, pos, player, hit, be);
     }
 
     @Override

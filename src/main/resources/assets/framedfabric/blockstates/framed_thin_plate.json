@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down":  { "model": "framedfabric:block/framed_thin_plate_down" },
+    "facing=up":    { "model": "framedfabric:block/framed_thin_plate_up" },
+    "facing=north": { "model": "framedfabric:block/framed_thin_plate_north" },
+    "facing=south": { "model": "framedfabric:block/framed_thin_plate_south" },
+    "facing=west":  { "model": "framedfabric:block/framed_thin_plate_west" },
+    "facing=east":  { "model": "framedfabric:block/framed_thin_plate_east" }
+  }
+}

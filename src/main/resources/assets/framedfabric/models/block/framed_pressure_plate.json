@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/pressure_plate_up",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  }
+}

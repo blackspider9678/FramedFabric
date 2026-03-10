@@ -1,0 +1,17 @@
+{
+  "multipart": [
+    {
+      "when": { "face": "floor" },
+      "apply": { "model": "framedfabric:block/framed_mini_cube_floor" }
+    },
+    {
+      "when": { "face": "ceiling" },
+      "apply": { "model": "framedfabric:block/framed_mini_cube_ceiling" }
+    },
+
+    { "when": { "face": "wall", "facing": "north" }, "apply": { "model": "framedfabric:block/framed_mini_cube_wall" } },
+    { "when": { "face": "wall", "facing": "east"  }, "apply": { "model": "framedfabric:block/framed_mini_cube_wall", "y": 90 } },
+    { "when": { "face": "wall", "facing": "south" }, "apply": { "model": "framedfabric:block/framed_mini_cube_wall", "y": 180 } },
+    { "when": { "face": "wall", "facing": "west"  }, "apply": { "model": "framedfabric:block/framed_mini_cube_wall", "y": 270 } }
+  ]
+}

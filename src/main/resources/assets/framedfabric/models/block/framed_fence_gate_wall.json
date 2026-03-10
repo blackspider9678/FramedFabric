@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_fence_gate_wall",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  }
+}

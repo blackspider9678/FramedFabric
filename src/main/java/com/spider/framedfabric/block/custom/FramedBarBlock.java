@@ -1,16 +1,23 @@
 package com.spider.framedfabric.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import com.spider.framedfabric.block.enums.StripShape;
+import com.spider.framedfabric.block.enums.BarShape;
+import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
+import com.spider.framedfabric.blockentity.FramedBlockEntity;
+import com.spider.framedfabric.blockentity.FramedUseHandler;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Property;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -20,106 +27,106 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-public class YourCustomStripBlock extends Block {
-    public static final MapCodec<YourCustomStripBlock> CODEC = createCodec(YourCustomStripBlock::new);
+import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+public class FramedBarBlock extends AbstractFramedEntityBlock {
+    public static final MapCodec<FramedBarBlock> CODEC = createCodec(FramedBarBlock::new);
+
+    // mapping-proof: avoid DirectionProperty
+    public static final Property<Direction> FACING = Properties.HORIZONTAL_FACING;
+
     public static final EnumProperty<BlockHalf> HALF = Properties.BLOCK_HALF;
-    public static final EnumProperty<StripShape> SHAPE = EnumProperty.of("shape", StripShape.class);
+    public static final EnumProperty<BarShape> SHAPE = EnumProperty.of("shape", BarShape.class);
 
-    // A thin “selection” outline (still no collision). Adjust thickness if you want.
-    // This matches a strip that sits along the “front” edge of the block.
-    private static final VoxelShape OUTLINE_NORTH_BOTTOM = Block.createCuboidShape(0, 0, 15, 16, 1, 16);
-    private static final VoxelShape OUTLINE_SOUTH_BOTTOM = Block.createCuboidShape(0, 0, 0,  16, 1, 1);
-    private static final VoxelShape OUTLINE_EAST_BOTTOM  = Block.createCuboidShape(0, 0, 0,  1, 1, 16);
-    private static final VoxelShape OUTLINE_WEST_BOTTOM  = Block.createCuboidShape(15,0, 0,  16,1, 16);
-
-    private static final VoxelShape OUTLINE_NORTH_TOP = Block.createCuboidShape(0, 15, 15, 16, 16, 16);
-    private static final VoxelShape OUTLINE_SOUTH_TOP = Block.createCuboidShape(0, 15, 0,  16, 16, 1);
-    private static final VoxelShape OUTLINE_EAST_TOP  = Block.createCuboidShape(0, 15, 0,  1, 16, 16);
-    private static final VoxelShape OUTLINE_WEST_TOP  = Block.createCuboidShape(15,15, 0,  16,16, 16);
-
-    public YourCustomStripBlock(Settings settings) {
+    public FramedBarBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState()
+        setDefaultState(getStateManager().getDefaultState()
+                .with(ROT, 1)
+                .with(HAS_CAMO, false)
                 .with(FACING, Direction.NORTH)
                 .with(HALF, BlockHalf.BOTTOM)
-                .with(SHAPE, StripShape.SINGLE));
+                .with(SHAPE, BarShape.SINGLE)
+        );
     }
 
     @Override
-    protected MapCodec<? extends Block> getCodec() {
+    protected MapCodec<? extends AbstractFramedEntityBlock> getCodec() {
         return CODEC;
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, SHAPE);
+        super.appendProperties(builder);
+        builder.add(HAS_CAMO, FACING, HALF, SHAPE);
     }
 
+    // Placement: slab-like top/bottom + facing
     @Override
     public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction facing = ctx.getHorizontalPlayerFacing().getOpposite();
 
-        // Slab-like: top if clicked upper half of block space
-        boolean top = ctx.getHitPos().y - ctx.getBlockPos().getY() > 0.5;
-        BlockHalf half = top ? BlockHalf.TOP : BlockHalf.BOTTOM;
+        double localY = ctx.getHitPos().y - ctx.getBlockPos().getY();
+        BlockHalf half = (localY > 0.5) ? BlockHalf.TOP : BlockHalf.BOTTOM;
 
-        BlockState placed = this.getDefaultState()
+        BlockState placed = getDefaultState()
                 .with(FACING, facing)
                 .with(HALF, half);
 
-        // Compute initial shape based on neighbors
         return withComputedShape(placed, ctx.getWorld(), ctx.getBlockPos());
     }
 
+    // ✅ Stable hook: called when a neighbor changes
     @Override
-    protected BlockState getStateForNeighborUpdate(
-            BlockState state,
-            Direction direction,
-            BlockState neighborState,
-            WorldAccess world,
-            BlockPos pos,
-            BlockPos neighborPos
-    ) {
-        Direction facing = state.get(FACING);
-        Direction left = facing.rotateYCounterclockwise();
-        Direction right = facing.rotateYClockwise();
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable net.minecraft.world.block.WireOrientation wireOrientation, boolean notify) {
+        // If your mappings don't have WireOrientation, your IDE will redline this.
+        // If that happens, see the alternate neighborUpdate signature just below.
+        if (world.isClient()) return;
 
-        // Only care when left/right neighbor changes; keeps updates cheap
-        if (direction == left || direction == right) {
-            return withComputedShape(state, world, pos);
+        BlockState updated = withComputedShape(state, (WorldAccess) world, pos);
+        if (updated != state) {
+            world.setBlockState(pos, updated, Block.NOTIFY_ALL);
         }
-        return state;
     }
 
+    /*
+    // ✅ Alternate neighborUpdate signature (comment out the one above and use this if needed)
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable PlayerEntity placer, net.minecraft.item.ItemStack itemStack) {
+    protected void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+        if (world.isClient()) return;
+
+        BlockState updated = withComputedShape(state, (WorldAccess) world, pos);
+        if (updated != state) {
+            world.setBlockState(pos, updated, Block.NOTIFY_ALL);
+        }
+    }
+    */
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, net.minecraft.item.ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        updateSelfAndNeighbors(world, pos, state);
-    }
+        if (!world.isClient()) {
+            BlockState updated = withComputedShape(state, (WorldAccess) world, pos);
+            if (updated != state) world.setBlockState(pos, updated, Block.NOTIFY_ALL);
 
-    @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        super.onStateReplaced(state, world, pos, newState, moved);
-
-        // If removed or changed to a different block, update old neighbors
-        if (!state.isOf(newState.getBlock())) {
-            Direction facing = state.get(FACING);
-            world.updateNeighbor(pos.offset(facing.rotateYCounterclockwise()), this, pos);
-            world.updateNeighbor(pos.offset(facing.rotateYClockwise()), this, pos);
+            // nudge neighbors so they re-evaluate
+            Direction facing = updated.get(FACING);
+            world.updateNeighbors(pos.offset(facing.rotateYCounterclockwise()), this);
+            world.updateNeighbors(pos.offset(facing.rotateYClockwise()), this);
         }
     }
 
-    private void updateSelfAndNeighbors(World world, BlockPos pos, BlockState state) {
-        // Update this block
-        BlockState updated = withComputedShape(state, world, pos);
-        if (updated != state) world.setBlockState(pos, updated, Block.NOTIFY_ALL);
+    // Your mappings: super.onStateReplaced has only (state, ServerWorld, pos, moved)
+    @Override
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        // let your BE drop camo parts like other framed blocks
+        BlockState out = super.onBreak(world, pos, state, player);
 
-        // Update neighbors that might depend on us
-        Direction facing = updated.get(FACING);
-        world.updateNeighbor(pos.offset(facing.rotateYCounterclockwise()), this, pos);
-        world.updateNeighbor(pos.offset(facing.rotateYClockwise()), this, pos);
+        if (!world.isClient()) {
+            Direction facing = state.get(FACING);
+            world.updateNeighbors(pos.offset(facing.rotateYCounterclockwise()), this);
+            world.updateNeighbors(pos.offset(facing.rotateYClockwise()), this);
+        }
+        return out;
     }
 
     private BlockState withComputedShape(BlockState state, WorldAccess world, BlockPos pos) {
@@ -132,45 +139,49 @@ public class YourCustomStripBlock extends Block {
         boolean left = connectsTo(world, pos.offset(leftDir), facing, half);
         boolean right = connectsTo(world, pos.offset(rightDir), facing, half);
 
-        StripShape shape =
-                left && right ? StripShape.MIDDLE :
-                        left ? StripShape.LEFT :
-                                right ? StripShape.RIGHT :
-                                        StripShape.SINGLE;
+        BarShape shape =
+                (left && right) ? BarShape.MIDDLE :
+                        left ? BarShape.LEFT :
+                                right ? BarShape.RIGHT :
+                                        BarShape.SINGLE;
 
         return state.with(SHAPE, shape);
     }
 
-    private boolean connectsTo(WorldAccess world, BlockPos neighborPos, Direction requiredFacing, BlockHalf requiredHalf) {
-        BlockState n = world.getBlockState(neighborPos);
+    private boolean connectsTo(WorldAccess world, BlockPos npos, Direction facing, BlockHalf half) {
+        BlockState n = world.getBlockState(npos);
         if (!n.isOf(this)) return false;
-        return n.get(FACING) == requiredFacing && n.get(HALF) == requiredHalf;
+        return n.get(FACING) == facing && n.get(HALF) == half;
     }
 
-    // NO COLLISION AT ALL
+    // No collisions
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return VoxelShapes.empty();
     }
 
-    // Optional: also stop being treated as full cube for culling/occlusion
     @Override
-    protected VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {
+    protected VoxelShape getCullingShape(BlockState state) {
         return VoxelShapes.empty();
     }
 
-    // Still selectable: outline depends on facing + half
     @Override
     protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        Direction f = state.get(FACING);
         boolean top = state.get(HALF) == BlockHalf.TOP;
+        Direction f = state.get(FACING);
 
         return switch (f) {
-            case NORTH -> top ? OUTLINE_NORTH_TOP : OUTLINE_NORTH_BOTTOM;
-            case SOUTH -> top ? OUTLINE_SOUTH_TOP : OUTLINE_SOUTH_BOTTOM;
-            case EAST  -> top ? OUTLINE_EAST_TOP  : OUTLINE_EAST_BOTTOM;
-            case WEST  -> top ? OUTLINE_WEST_TOP  : OUTLINE_WEST_BOTTOM;
+            case NORTH -> top ? Block.createCuboidShape(0, 15, 15, 16, 16, 16) : Block.createCuboidShape(0, 0, 15, 16, 1, 16);
+            case SOUTH -> top ? Block.createCuboidShape(0, 15, 0,  16, 16, 1)  : Block.createCuboidShape(0, 0, 0,  16, 1, 1);
+            case EAST  -> top ? Block.createCuboidShape(0, 15, 0,  1, 16, 16)  : Block.createCuboidShape(0, 0, 0,  1, 1, 16);
+            case WEST  -> top ? Block.createCuboidShape(15,15, 0,  16,16, 16)  : Block.createCuboidShape(15,0, 0,  16,1, 16);
             default -> VoxelShapes.empty();
         };
+    }
+
+    @Override
+    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+        FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
+        return FramedUseHandler.handleUse(state, world, pos, player, hit, be, 0);
     }
 }

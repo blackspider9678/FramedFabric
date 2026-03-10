@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "translucent",
+  "textures": {
+    "particle": "framedfabric:block/framed_texture",
+    "tex": "framedfabric:block/framed_texture",
+    "tex2": "framedfabric:block/framed_texture2"
+  },
+  "elements": [
+    { "from":[0,0,0],  "to":[8,8,8],   "faces":{ "north":{"texture":"#tex"},  "south":{"texture":"#tex"},  "west":{"texture":"#tex"},  "east":{"texture":"#tex"},  "up":{"texture":"#tex"},  "down":{"texture":"#tex"} } },
+    { "from":[8,0,8],  "to":[16,8,16], "faces":{ "north":{"texture":"#tex"},  "south":{"texture":"#tex"},  "west":{"texture":"#tex"},  "east":{"texture":"#tex"},  "up":{"texture":"#tex"},  "down":{"texture":"#tex"} } },
+
+    { "from":[8,0,0],  "to":[16,8,8],  "faces":{ "north":{"texture":"#tex2"}, "south":{"texture":"#tex2"}, "west":{"texture":"#tex2"}, "east":{"texture":"#tex2"}, "up":{"texture":"#tex2"}, "down":{"texture":"#tex2"} } },
+    { "from":[0,0,8],  "to":[8,8,16],  "faces":{ "north":{"texture":"#tex2"}, "south":{"texture":"#tex2"}, "west":{"texture":"#tex2"}, "east":{"texture":"#tex2"}, "up":{"texture":"#tex2"}, "down":{"texture":"#tex2"} } }
+  ]
+}

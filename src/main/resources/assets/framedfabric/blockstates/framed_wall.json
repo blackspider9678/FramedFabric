@@ -1,0 +1,51 @@
+{
+  "multipart": [
+    { "when": { "rot": 1, "up": true }, "apply": { "model": "framedfabric:block/framed_wall_post" } },
+
+    { "when": { "rot": 1, "north": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "uvlock": true } },
+    { "when": { "rot": 1, "east":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 1, "south": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 180, "uvlock": true } },
+    { "when": { "rot": 1, "west":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 270, "uvlock": true } },
+
+    { "when": { "rot": 1, "north": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "uvlock": true } },
+    { "when": { "rot": 1, "east":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 1, "south": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 180, "uvlock": true } },
+    { "when": { "rot": 1, "west":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 270, "uvlock": true } },
+
+    { "when": { "rot": 2, "up": true }, "apply": { "model": "framedfabric:block/framed_wall_post", "y": 90 } },
+
+    { "when": { "rot": 2, "north": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 2, "east":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 180, "uvlock": true } },
+    { "when": { "rot": 2, "south": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 270, "uvlock": true } },
+    { "when": { "rot": 2, "west":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 0,   "uvlock": true } },
+
+    { "when": { "rot": 2, "north": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 2, "east":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 180, "uvlock": true } },
+    { "when": { "rot": 2, "south": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 270, "uvlock": true } },
+    { "when": { "rot": 2, "west":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 0,   "uvlock": true } },
+
+    { "when": { "rot": 3, "up": true }, "apply": { "model": "framedfabric:block/framed_wall_post", "y": 180 } },
+
+    { "when": { "rot": 3, "north": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 180, "uvlock": true } },
+    { "when": { "rot": 3, "east":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 270, "uvlock": true } },
+    { "when": { "rot": 3, "south": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 0,   "uvlock": true } },
+    { "when": { "rot": 3, "west":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 90,  "uvlock": true } },
+
+    { "when": { "rot": 3, "north": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 180, "uvlock": true } },
+    { "when": { "rot": 3, "east":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 270, "uvlock": true } },
+    { "when": { "rot": 3, "south": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 0,   "uvlock": true } },
+    { "when": { "rot": 3, "west":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 90,  "uvlock": true } },
+
+    { "when": { "rot": 4, "up": true }, "apply": { "model": "framedfabric:block/framed_wall_post", "y": 270 } },
+
+    { "when": { "rot": 4, "north": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 270, "uvlock": true } },
+    { "when": { "rot": 4, "east":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 0,   "uvlock": true } },
+    { "when": { "rot": 4, "south": "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 4, "west":  "low"  }, "apply": { "model": "framedfabric:block/framed_wall_side", "y": 180, "uvlock": true } },
+
+    { "when": { "rot": 4, "north": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 270, "uvlock": true } },
+    { "when": { "rot": 4, "east":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 0,   "uvlock": true } },
+    { "when": { "rot": 4, "south": "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 90,  "uvlock": true } },
+    { "when": { "rot": 4, "west":  "tall" }, "apply": { "model": "framedfabric:block/framed_wall_side_tall", "y": 180, "uvlock": true } }
+  ]
+}

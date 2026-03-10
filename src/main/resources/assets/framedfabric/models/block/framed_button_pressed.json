@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/button_pressed",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  }
+}

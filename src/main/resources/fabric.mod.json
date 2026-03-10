@@ -14,7 +14,10 @@
       "com.spider.framedfabric.client.FramedfabricClient"
     ],
     "main": [
-      "com.spider.framedfabric.Framedfabric"
+      "com.spider.framedfabric.FramedFabric"
+    ],
+    "fabric-datagen": [
+      "com.spider.framedfabric.client.datagen.FramedFabricDataGen"
     ]
   },
   "mixins": [

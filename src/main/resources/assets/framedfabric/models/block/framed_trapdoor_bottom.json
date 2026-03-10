@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_trapdoor_bottom",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  }
+}

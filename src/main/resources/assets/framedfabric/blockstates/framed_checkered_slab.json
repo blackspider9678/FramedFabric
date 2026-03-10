@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "framedfabric:block/framed_checkered_slab" },
+    "type=top":    { "model": "framedfabric:block/framed_checkered_slab_top" },
+    "type=double": { "model": "framedfabric:block/framed_checkered_slab_double" }
+  }
+}

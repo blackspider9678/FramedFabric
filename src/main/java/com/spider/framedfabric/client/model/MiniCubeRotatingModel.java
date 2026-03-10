@@ -1,11 +1,12 @@
 package com.spider.framedfabric.client.model;
 
-import com.spider.framedfabric.block.custom.FramedMiniCubeBlock;
+import com.spider.framedfabric.block.FramedMiniCubeBlock;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadTransform;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockStateModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.enums.BlockFace;
 import net.minecraft.client.render.model.BlockModelPart;
 import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.client.texture.Sprite;
@@ -35,15 +36,15 @@ public final class MiniCubeRotatingModel implements BlockStateModel, FabricBlock
             Random random,
             Predicate<@Nullable Direction> cullTest
     ) {
-        // Only rotate for our mini cube
-        if (!(state.getBlock() instanceof com.spider.framedfabric.block.custom.FramedMiniCubeBlock)) {
+        // Only our mini cube
+        if (!(state.getBlock() instanceof FramedMiniCubeBlock)) {
             parent.emitQuads(emitter, view, pos, state, random, cullTest);
             return;
         }
 
-        // Only floor/ceiling use 16-step yaw; walls are handled by blockstate Y rotation (90 steps)
-        var face = state.get(FramedMiniCubeBlock.FACE);
-        if (face == net.minecraft.block.enums.WallMountLocation.WALL) {
+        // If you ALSO want wall-mounted to rotate in 16 steps, delete this WALL early-return.
+        BlockFace mount = state.get(FramedMiniCubeBlock.FACE);
+        if (mount == BlockFace.WALL) {
             parent.emitQuads(emitter, view, pos, state, random, cullTest);
             return;
         }
@@ -54,33 +55,32 @@ public final class MiniCubeRotatingModel implements BlockStateModel, FabricBlock
             return;
         }
 
-        final float angleRad = (float) (rot16 * (Math.PI / 8.0)); // 22.5° per step
-        final float sin = (float) Math.sin(angleRad);
-        final float cos = (float) Math.cos(angleRad);
+        final float ang = (float) (rot16 * (Math.PI / 8.0)); // 22.5° per step
+        final float sin = (float) Math.sin(ang);
+        final float cos = (float) Math.cos(ang);
 
-        QuadTransform transform = quad -> {
+        QuadTransform t = quad -> {
             rotateQuadYAboutCenter(quad, sin, cos);
 
-            // Non-90° rotated faces are no longer axis-aligned -> directional cull breaks.
+            // IMPORTANT: non-90° rotation breaks vanilla directional cull.
             quad.cullFace(null);
 
-            // Best-effort shading/light direction: pick closest axis from rotated normal
+            // Optional: update nominal face (helps lighting / AO a bit in some pipelines)
             Direction guess = guessFaceFromGeometry(quad);
             if (guess != null) {
                 quad.nominalFace(guess);
-                quad.lightFace(guess);
+                // quad.lightFace(...) is NOT a setter in 1.21.11 -> don't call it
             }
 
             return true;
         };
 
-        emitter.pushTransform(transform);
+        emitter.pushTransform(t);
         parent.emitQuads(emitter, view, pos, state, random, cullTest);
         emitter.popTransform();
     }
 
     private static void rotateQuadYAboutCenter(MutableQuadView q, float sin, float cos) {
-        // Rotate all vertices around block center (0.5, 0.5, 0.5)
         final float cx = 0.5f;
         final float cz = 0.5f;
 

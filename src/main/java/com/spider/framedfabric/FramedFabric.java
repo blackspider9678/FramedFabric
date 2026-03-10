@@ -1,10 +1,8 @@
 package com.spider.framedfabric;
 
-import com.spider.framedfabric.registry.ModBlockEntities;
-import com.spider.framedfabric.registry.ModBlocks;
-import com.spider.framedfabric.registry.ModItemGroups;
-import com.spider.framedfabric.registry.ModItems;
+import com.spider.framedfabric.registry.*;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mtgcard:item/framed_block"
+    "model": "framedfabric:item/framed_block"
   }
 }

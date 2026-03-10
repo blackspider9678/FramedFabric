@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "translucent",
+  "textures": {
+    "particle": "framedfabric:block/framed_texture3",
+    "tex3": "framedfabric:block/framed_texture3",
+    "tex4": "framedfabric:block/framed_texture4"
+  },
+  "elements": [
+    { "from":[0,8,0],  "to":[8,16,8],   "faces":{ "north":{"texture":"#tex3"}, "south":{"texture":"#tex3"}, "west":{"texture":"#tex3"}, "east":{"texture":"#tex3"}, "up":{"texture":"#tex3"}, "down":{"texture":"#tex3"} } },
+    { "from":[8,8,8],  "to":[16,16,16], "faces":{ "north":{"texture":"#tex3"}, "south":{"texture":"#tex3"}, "west":{"texture":"#tex3"}, "east":{"texture":"#tex3"}, "up":{"texture":"#tex3"}, "down":{"texture":"#tex3"} } },
+
+    { "from":[8,8,0],  "to":[16,16,8],  "faces":{ "north":{"texture":"#tex4"}, "south":{"texture":"#tex4"}, "west":{"texture":"#tex4"}, "east":{"texture":"#tex4"}, "up":{"texture":"#tex4"}, "down":{"texture":"#tex4"} } },
+    { "from":[0,8,8],  "to":[8,16,16],  "faces":{ "north":{"texture":"#tex4"}, "south":{"texture":"#tex4"}, "west":{"texture":"#tex4"}, "east":{"texture":"#tex4"}, "up":{"texture":"#tex4"}, "down":{"texture":"#tex4"} } }
+  ]
+}

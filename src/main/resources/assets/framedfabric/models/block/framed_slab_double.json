@@ -1,8 +1,37 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/block",
   "render_type": "translucent",
   "textures": {
-    "all": "framedfabric:block/framed_texture",
+    "bottom": "framedfabric:block/framed_texture",
+    "top": "framedfabric:block/framed_texture2",
+    "side": "framedfabric:block/framed_texture",
+    "side2": "framedfabric:block/framed_texture2",
     "particle": "framedfabric:block/framed_texture"
-  }
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to":   [16, 8, 16],
+      "faces": {
+        "down":  { "texture": "#bottom", "tintindex": 0 },
+        "up":    { "texture": "#bottom", "tintindex": 0 },
+        "north": { "texture": "#side",   "tintindex": 0 },
+        "south": { "texture": "#side",   "tintindex": 0 },
+        "west":  { "texture": "#side",   "tintindex": 0 },
+        "east":  { "texture": "#side",   "tintindex": 0 }
+      }
+    },
+    {
+      "from": [0, 8, 0],
+      "to":   [16, 16, 16],
+      "faces": {
+        "down":  { "texture": "#top",   "tintindex": 1 },
+        "up":    { "texture": "#top",   "tintindex": 1 },
+        "north": { "texture": "#side2", "tintindex": 1 },
+        "south": { "texture": "#side2", "tintindex": 1 },
+        "west":  { "texture": "#side2", "tintindex": 1 },
+        "east":  { "texture": "#side2", "tintindex": 1 }
+      }
+    }
+  ]
 }

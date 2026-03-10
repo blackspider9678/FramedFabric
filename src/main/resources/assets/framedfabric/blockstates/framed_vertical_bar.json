@@ -1,0 +1,43 @@
+{
+  "variants": {
+    "corner=nw,shape=single,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/single" },
+    "corner=ne,shape=single,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 90 },
+    "corner=se,shape=single,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 180 },
+    "corner=sw,shape=single,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 270 },
+
+    "corner=nw,shape=top,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/top" },
+    "corner=ne,shape=top,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 90 },
+    "corner=se,shape=top,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 180 },
+    "corner=sw,shape=top,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 270 },
+
+    "corner=nw,shape=bottom,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/bottom" },
+    "corner=ne,shape=bottom,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 90 },
+    "corner=se,shape=bottom,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 180 },
+    "corner=sw,shape=bottom,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 270 },
+
+    "corner=nw,shape=middle,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/middle" },
+    "corner=ne,shape=middle,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 90 },
+    "corner=se,shape=middle,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 180 },
+    "corner=sw,shape=middle,waterlogged=false": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 270 },
+
+    "corner=nw,shape=single,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/single" },
+    "corner=ne,shape=single,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 90 },
+    "corner=se,shape=single,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 180 },
+    "corner=sw,shape=single,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/single", "y": 270 },
+
+    "corner=nw,shape=top,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/top" },
+    "corner=ne,shape=top,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 90 },
+    "corner=se,shape=top,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 180 },
+    "corner=sw,shape=top,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/top", "y": 270 },
+
+    "corner=nw,shape=bottom,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/bottom" },
+    "corner=ne,shape=bottom,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 90 },
+    "corner=se,shape=bottom,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 180 },
+    "corner=sw,shape=bottom,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/bottom", "y": 270 },
+
+    "corner=nw,shape=middle,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/middle" },
+    "corner=ne,shape=middle,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 90 },
+    "corner=se,shape=middle,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 180 },
+    "corner=sw,shape=middle,waterlogged=true": { "model": "framedfabric:block/framed_vertical_bar/middle", "y": 270 }
+  }
+}

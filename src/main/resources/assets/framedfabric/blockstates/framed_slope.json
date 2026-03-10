@@ -1,0 +1,23 @@
+{
+  "variants": {
+    "facing=north,half=bottom,waterlogged=false": { "model": "framedfabric:block/framed_slope" },
+    "facing=east,half=bottom,waterlogged=false":  { "model": "framedfabric:block/framed_slope" },
+    "facing=south,half=bottom,waterlogged=false": { "model": "framedfabric:block/framed_slope" },
+    "facing=west,half=bottom,waterlogged=false":  { "model": "framedfabric:block/framed_slope" },
+
+    "facing=north,half=top,waterlogged=false": { "model": "framedfabric:block/framed_slope" },
+    "facing=east,half=top,waterlogged=false":  { "model": "framedfabric:block/framed_slope" },
+    "facing=south,half=top,waterlogged=false": { "model": "framedfabric:block/framed_slope" },
+    "facing=west,half=top,waterlogged=false":  { "model": "framedfabric:block/framed_slope" },
+
+    "facing=north,half=bottom,waterlogged=true": { "model": "framedfabric:block/framed_slope" },
+    "facing=east,half=bottom,waterlogged=true":  { "model": "framedfabric:block/framed_slope" },
+    "facing=south,half=bottom,waterlogged=true": { "model": "framedfabric:block/framed_slope" },
+    "facing=west,half=bottom,waterlogged=true":  { "model": "framedfabric:block/framed_slope" },
+
+    "facing=north,half=top,waterlogged=true": { "model": "framedfabric:block/framed_slope" },
+    "facing=east,half=top,waterlogged=true":  { "model": "framedfabric:block/framed_slope" },
+    "facing=south,half=top,waterlogged=true": { "model": "framedfabric:block/framed_slope" },
+    "facing=west,half=top,waterlogged=true":  { "model": "framedfabric:block/framed_slope" }
+  }
+}

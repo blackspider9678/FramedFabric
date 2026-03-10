@@ -1,10 +1,7 @@
-package com.spider.framedfabric.block;
+package com.spider.framedfabric.blockentity;
 
-import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.camo.FramedCamoLogic;
 import com.spider.framedfabric.registry.ModBlockEntities;
-import com.spider.framedfabric.registry.ModBlocks;
-import com.spider.framedfabric.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -15,13 +12,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-
-import static com.spider.framedfabric.registry.FramedTags.isHoldingFramedBlock;
 
 public abstract class AbstractFramedEntityBlock extends BlockWithEntity {
 

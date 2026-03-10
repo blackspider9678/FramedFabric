@@ -1,3 +1,3 @@
 {
-  "parent": "framedfabric:block/framed_stairs"
+  "parent": "framedfabric:block/framed_vertical_stairs", "z": 90
 }

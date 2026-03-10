@@ -1,0 +1,46 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "shell": "framedfabric:block/framed_texture",
+    "dirt":  "minecraft:block/dirt",
+    "particle": "framedfabric:block/framed_texture"
+  },
+  "elements": [
+    { "from": [ 5, 0, 5 ], "to": [ 11, 1, 11 ],
+      "faces": {
+        "down":  { "texture": "#shell" },
+        "up":    { "texture": "#shell" },
+        "north": { "texture": "#shell" },
+        "south": { "texture": "#shell" },
+        "west":  { "texture": "#shell" },
+        "east":  { "texture": "#shell" }
+      }
+    },
+
+    { "from": [ 5, 1, 5 ], "to": [ 6, 6, 11 ],
+      "faces": { "north": { "texture": "#shell" }, "south": { "texture": "#shell" }, "west": { "texture": "#shell" }, "east": { "texture": "#shell" }, "up": { "texture": "#shell" }, "down": { "texture": "#shell" } }
+    },
+    { "from": [ 10, 1, 5 ], "to": [ 11, 6, 11 ],
+      "faces": { "north": { "texture": "#shell" }, "south": { "texture": "#shell" }, "west": { "texture": "#shell" }, "east": { "texture": "#shell" }, "up": { "texture": "#shell" }, "down": { "texture": "#shell" } }
+    },
+    { "from": [ 6, 1, 5 ], "to": [ 10, 6, 6 ],
+      "faces": { "north": { "texture": "#shell" }, "south": { "texture": "#shell" }, "west": { "texture": "#shell" }, "east": { "texture": "#shell" }, "up": { "texture": "#shell" }, "down": { "texture": "#shell" } }
+    },
+    { "from": [ 6, 1, 10 ], "to": [ 10, 6, 11 ],
+      "faces": { "north": { "texture": "#shell" }, "south": { "texture": "#shell" }, "west": { "texture": "#shell" }, "east": { "texture": "#shell" }, "up": { "texture": "#shell" }, "down": { "texture": "#shell" } }
+    },
+
+    {
+      "from": [ 6, 1, 6 ],
+      "to":   [ 10, 2, 10 ],
+      "faces": {
+        "up":    { "texture": "#dirt", "tintindex": 7 },
+        "down":  { "texture": "#dirt", "tintindex": 7 },
+        "north": { "texture": "#dirt", "tintindex": 7 },
+        "south": { "texture": "#dirt", "tintindex": 7 },
+        "west":  { "texture": "#dirt", "tintindex": 7 },
+        "east":  { "texture": "#dirt", "tintindex": 7 }
+      }
+    }
+  ]
+}

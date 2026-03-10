@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/lightning_rod_on",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture"
+  }
+}

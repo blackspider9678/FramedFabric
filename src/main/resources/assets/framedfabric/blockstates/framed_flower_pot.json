@@ -1,0 +1,33 @@
+{
+  "variants": {
+    "rot=1,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=1,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=1,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=1,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" },
+
+    "rot=2,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=2,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=2,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=2,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" },
+
+    "rot=3,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=3,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=3,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=3,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" },
+
+    "rot=4,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=4,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=4,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=4,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" },
+
+    "rot=5,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=5,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=5,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=5,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" },
+
+    "rot=6,has_camo=false,waterlogged=false": { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=6,has_camo=false,waterlogged=true":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=6,has_camo=true,waterlogged=false":  { "model": "framedfabric:block/framed_flower_pot" },
+    "rot=6,has_camo=true,waterlogged=true":   { "model": "framedfabric:block/framed_flower_pot" }
+  }
+}

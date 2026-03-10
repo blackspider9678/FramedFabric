@@ -1,6 +1,6 @@
 package com.spider.framedfabric.item;
 
-import com.spider.framedfabric.block.AbstractFramedEntityBlock;
+import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
