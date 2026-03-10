@@ -1,37 +1,36 @@
 package com.spider.framedfabric.item;
 
-import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Item.Properties;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.Level;
+import com.spider.framedfabric.block.AbstractFramedEntityBlock;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.util.ActionResult;
+import net.minecraft.world.World;
 
 public class FramedWrenchItem extends Item {
-    public FramedWrenchItem(Properties settings) {
+    public FramedWrenchItem(Settings settings) {
         super(settings);
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext ctx) {
-        Level world = ctx.getLevel();
-        var pos = ctx.getClickedPos();
+    public ActionResult useOnBlock(ItemUsageContext ctx) {
+        World world = ctx.getWorld();
+        var pos = ctx.getBlockPos();
         var state = world.getBlockState(pos);
 
         if (!(state.getBlock() instanceof AbstractFramedEntityBlock)) {
-            return InteractionResult.PASS;
+            return ActionResult.PASS;
         }
 
-        if (!state.hasProperty(AbstractFramedEntityBlock.ROT)) {
-            return InteractionResult.PASS;
+        if (!state.contains(AbstractFramedEntityBlock.ROT)) {
+            return ActionResult.PASS;
         }
 
-        if (!world.isClientSide()) {
-            int rot = state.getValue(AbstractFramedEntityBlock.ROT);
+        if (!world.isClient()) {
+            int rot = state.get(AbstractFramedEntityBlock.ROT);
             int next = (rot % 6) + 1;
-            world.setBlock(pos, state.setValue(AbstractFramedEntityBlock.ROT, next), 3);
+            world.setBlockState(pos, state.with(AbstractFramedEntityBlock.ROT, next), 3);
         }
 
-        return InteractionResult.SUCCESS;
+        return ActionResult.SUCCESS;
     }
 }

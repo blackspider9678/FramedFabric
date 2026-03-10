@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "framedfabric:item/framed_lightning_rod"
+    "model": "framedfabric:item/framed_block"
   }
 }

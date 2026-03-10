@@ -1,6 +1,20 @@
 {
   "replace": false,
   "values": [
-    "#framedfabric:framed"
+    "framedfabric:framed_block",
+    "framedfabric:framed_fence",
+    "framedfabric:framed_fence_gate",
+    "framedfabric:framed_button",
+    "framedfabric:framed_pressure_plate",
+    "framedfabric:framed_door",
+    "framedfabric:framed_wall",
+    "framedfabric:framed_pane",
+    "framedfabric:framed_trapdoor",
+    "framedfabric:framed_slab",
+    "framedfabric:framed_stair",
+    "framedfabric:framed_mini_cube",
+    "framedfabric:framed_flower_pot",
+    "framedfabric:framed_vertical_stair",
+    "framedfabric:framed_lightning_rod"
   ]
 }

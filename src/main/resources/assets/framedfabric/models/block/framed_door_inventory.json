@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/oak_door",
+  "parent": "minecraft:block/button_inventory",
   "textures": {
-    "layer0": "framedfabric:item/framed_door"
+    "texture": "framedfabric:block/framed_texture"
   }
 }

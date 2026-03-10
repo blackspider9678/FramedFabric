@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "framedfabric:item/framed_large_post"
+    "model": "framedfabric:item/framed_small_post"
   }
 }

@@ -1,5 +1,4 @@
-package com.spider.framedfabric.client.model;
+package com.spider.framedfabric.client;
 
-public final class BakedCamoModel {
-    private BakedCamoModel() {}
+public class BakedCamoModel {
 }

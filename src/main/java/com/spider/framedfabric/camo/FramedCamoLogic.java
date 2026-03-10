@@ -1,87 +1,61 @@
 package com.spider.framedfabric.camo;
 
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
-import com.spider.framedfabric.registry.FramedTags;
 import com.spider.framedfabric.registry.ModItems;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.*;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.world.World;
 
 public final class FramedCamoLogic {
     private FramedCamoLogic() {}
 
-    public static InteractionResult onUse(Level world, Player player, InteractionHand hand, FramedBlockEntity be, int partIndex, boolean blockAllWhenLocked) {
-        ItemStack held = player.getItemInHand(hand);
+    /**
+     * Behavior:
+     * - If camo NOT set: right click with BlockItem consumes 1 and locks
+     * - If camo IS set: only HAMMER can unlock + refund; otherwise no interaction allowed
+     */
+    public static ActionResult onUse(World world, PlayerEntity player, Hand hand, FramedBlockEntity be, boolean blockAllWhenLocked) {
+        ItemStack held = player.getStackInHand(hand);
 
-        if (FramedTags.isFramedStack(held)) return InteractionResult.PASS;
-
-        // LOCKED (for THIS PART): only hammer works
-        if (be.hasCamoPart(partIndex)) {
-            if (held.is(ModItems.HAMMER)) {
-                if (!world.isClientSide()) {
-                    ItemStack refund = camoRefundStack(be, partIndex);
+        // LOCKED: only hammer works
+        if (be.hasCamo()) {
+            if (held.isOf(ModItems.HAMMER)) {
+                if (!world.isClient()) {
+                    ItemStack refund = camoRefundStack(be);
                     giveOrDrop(player, refund);
-                    be.clearCamoPart(partIndex);
+                    be.clearCamo();
                 }
-                return InteractionResult.SUCCESS;
+                return ActionResult.SUCCESS;
             }
-            return blockAllWhenLocked ? InteractionResult.FAIL : InteractionResult.PASS;
+            return blockAllWhenLocked ? ActionResult.FAIL : ActionResult.PASS;
         }
 
         // EMPTY: accept BlockItem to apply camo
         if (held.getItem() instanceof BlockItem bi) {
-            BlockState camo = bi.getBlock().defaultBlockState();
-            if (isUnsupportedCamo(camo)) {
-                return InteractionResult.PASS;
+            if (!world.isClient()) {
+                BlockState camo = bi.getBlock().getDefaultState();
+                be.setCamo(camo);
+                if (!player.isCreative()) held.decrement(1);
             }
-
-            if (!world.isClientSide()) {
-                be.setCamoPart(partIndex, camo);
-                if (!player.isCreative()) held.shrink(1);
-            }
-            return InteractionResult.SUCCESS;
+            return ActionResult.SUCCESS;
         }
 
-        return InteractionResult.PASS;
+        return ActionResult.PASS;
     }
 
-    public static ItemStack camoRefundStack(FramedBlockEntity be, int partIndex) {
-        return new ItemStack(be.getCamoPart(partIndex).getBlock().asItem());
-    }
-
-    // legacy helper (keeps older callers compiling if any remain)
     public static ItemStack camoRefundStack(FramedBlockEntity be) {
-        return camoRefundStack(be, 0);
+        // If the camo block has no item, this will be AIR; caller should handle.
+        return new ItemStack(be.getCamo().getBlock().asItem());
     }
 
-    private static void giveOrDrop(Player player, ItemStack stack) {
+    private static void giveOrDrop(PlayerEntity player, ItemStack stack) {
         if (stack.isEmpty()) return;
-        if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
+        if (!player.getInventory().insertStack(stack)) {
+            player.dropItem(stack, false);
         }
-    }
-
-    private static boolean isUnsupportedCamo(BlockState state) {
-        Block block = state.getBlock();
-        return block instanceof VegetationBlock
-                || block instanceof VineBlock
-                || block instanceof GlowLichenBlock
-                || block instanceof BambooSaplingBlock
-                || block instanceof BambooStalkBlock
-                || block instanceof CactusBlock
-                || block instanceof ChorusFlowerBlock
-                || block instanceof ChorusPlantBlock
-                || block instanceof KelpBlock
-                || block instanceof KelpPlantBlock
-                || block instanceof SeaPickleBlock
-                || block instanceof SeagrassBlock
-                || block instanceof SugarCaneBlock
-                || block instanceof TallSeagrassBlock
-                || block instanceof BaseCoralPlantTypeBlock;
     }
 }

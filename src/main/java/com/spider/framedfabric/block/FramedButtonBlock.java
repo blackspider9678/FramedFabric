@@ -1,104 +1,21 @@
 package com.spider.framedfabric.block;
 
 import com.mojang.serialization.MapCodec;
-import com.spider.framedfabric.blockentity.FramedBlockEntity;
-import com.spider.framedfabric.blockentity.FramedUseHandler;
-import com.spider.framedfabric.camo.FramedCamoLogic;
-import com.spider.framedfabric.registry.ModBlockEntities;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.block.BlockSetType;
+import net.minecraft.block.ButtonBlock;
 
-import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
-import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
+public class FramedButtonBlock extends ButtonBlock {
 
-public class FramedButtonBlock extends ButtonBlock implements EntityBlock {
+    // Match the superclass return type EXACTLY
+    public static final MapCodec<ButtonBlock> CODEC =
+            createCodec(s -> new FramedButtonBlock(BlockSetType.OAK, 20, s));
 
-    public static final MapCodec<FramedButtonBlock> CODEC = simpleCodec(FramedButtonBlock::new);
-
-    public FramedButtonBlock(Properties settings) {
-        super(BlockSetType.OAK, 30, settings);
-
-        this.registerDefaultState(this.getStateDefinition().any()
-                .setValue(POWERED, false)
-                .setValue(HAS_CAMO, false)
-                .setValue(ROT, 1)
-        );
-
+    public FramedButtonBlock(BlockSetType setType, int pressTicks, Settings settings) {
+        super(setType, pressTicks, settings);
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<ButtonBlock> codec() {
-        return (MapCodec) CODEC;
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(HAS_CAMO, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
-    }
-
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new FramedBlockEntity(ModBlockEntities.FRAMED, pos, state);
-    }
-
-    @Override
-    protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
-        return com.spider.framedfabric.blockentity.FramedProperties.hasCamo(state)
-                ? net.minecraft.world.level.block.RenderShape.INVISIBLE
-                : net.minecraft.world.level.block.RenderShape.MODEL;
-    }
-
-    // NOTE: ButtonBlock's onUse has NO Hand parameter in your version.
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos,
-                                               Player player, BlockHitResult hit) {
-
-        FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
-
-        // Run framed logic first; if it doesn't consume, let vanilla button press happen.
-        InteractionResult r = FramedUseHandler.handleUseVanillaInteractive(state, world, pos, player, hit, be);
-        return (r == InteractionResult.PASS) ? super.useWithoutItem(state, world, pos, player, hit) : r;
-    }
-
-    @Override
-    protected InteractionResult useItemOn(
-            ItemStack itemStack,
-            BlockState state,
-            Level world,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hit
-    ) {
-        FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
-        return FramedUseHandler.handleUseItemOnVanillaInteractive(state, world, pos, player, hand, hit, be);
-    }
-
-    @Override
-    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-        if (world instanceof ServerLevel sw) {
-            if (sw.getBlockEntity(pos) instanceof FramedBlockEntity be && be.hasCamo()) {
-                ItemStack camoDrop = FramedCamoLogic.camoRefundStack(be);
-                if (!camoDrop.isEmpty()) Block.popResource(sw, pos, camoDrop);
-            }
-        }
-        return super.playerWillDestroy(world, pos, state, player);
+    public MapCodec<ButtonBlock> getCodec() {
+        return CODEC;
     }
 }

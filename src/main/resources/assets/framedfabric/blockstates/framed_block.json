@@ -1,10 +1,12 @@
 {
   "variants": {
-    "rot=1": { "model": "framedfabric:block/framed_block" },
-    "rot=2": { "model": "framedfabric:block/framed_block", "y": 90 },
-    "rot=3": { "model": "framedfabric:block/framed_block", "y": 180 },
-    "rot=4": { "model": "framedfabric:block/framed_block", "y": 270 },
-    "rot=5": { "model": "framedfabric:block/framed_block", "x": 90 },
-    "rot=6": { "model": "framedfabric:block/framed_block", "x": 270 }
+    "has_camo=false": { "model": "framedfabric:block/framed_block" },
+
+    "has_camo=true,rot=1": { "model": "framedfabric:block/empty" },
+    "has_camo=true,rot=2": { "model": "framedfabric:block/empty", "y": 90 },
+    "has_camo=true,rot=3": { "model": "framedfabric:block/empty", "y": 180 },
+    "has_camo=true,rot=4": { "model": "framedfabric:block/empty", "y": 270 },
+    "has_camo=true,rot=5": { "model": "framedfabric:block/empty", "x": 90 },
+    "has_camo=true,rot=6": { "model": "framedfabric:block/empty", "x": 270 }
   }
 }

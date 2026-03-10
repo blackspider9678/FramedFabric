@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "framedfabric",
-  "version": "1.0.3",
+  "version": "${version}",
   "name": "FramedFabric",
   "description": "satisfactory oreposits in the world of minecraft",
   "authors": [],
@@ -14,18 +14,15 @@
       "com.spider.framedfabric.client.FramedfabricClient"
     ],
     "main": [
-      "com.spider.framedfabric.FramedFabric"
-    ],
-    "fabric-datagen": [
-      "com.spider.framedfabric.client.datagen.FramedFabricDataGen"
+      "com.spider.framedfabric.Framedfabric"
     ]
   },
   "mixins": [
     "framedfabric.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.18.4",
+    "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": "26.1"
+    "minecraft": "${minecraft_version}"
   }
 }
