@@ -3,6 +3,7 @@ package com.spider.framedfabric.registry;
 import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.block.*;
 import com.spider.framedfabric.block.custom.*;
+import com.spider.framedfabric.block.FramedLadderBlock;
 import net.minecraft.block.*;
 import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKey;
@@ -89,6 +90,9 @@ public final class ModBlocks {
     public static final Block FRAMED_LIGHTNING_ROD =
             register("framed_lightning_rod", FramedLightningRodBlock::new, BASE);
 
+    public static final Block FRAMED_LADDER =
+            register("framed_ladder", FramedLadderBlock::new, BASE);
+
     //Custom Blocks
     public static final Block FRAMED_SLOPE =
             register("framed_slope", FramedSlopeBlock::new,
@@ -129,6 +133,13 @@ public final class ModBlocks {
 
     public static final Block FRAMED_VERTICAL_BAR =
             register("framed_vertical_bar", FramedVerticalBarBlock::new, BASE);
+
+    public static final Block WOOD_WORKBENCH =
+            register("wood_workbench", WoodWorkbenchBlock::new,
+                    AbstractBlock.Settings.create()
+                            .strength(2.5f)
+                            .sounds(BlockSoundGroup.WOOD)
+                            .nonOpaque());
 
     public static void init() {}
 
