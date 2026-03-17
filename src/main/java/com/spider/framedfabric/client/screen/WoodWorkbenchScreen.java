@@ -91,11 +91,11 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
 
     private void renderRecipeButtons(DrawContext context, int mouseX, int mouseY, int x, int y) {
         List<ItemStack> recipes = this.handler.getDisplayRecipes();
-        int start = this.scrollOffset;
-        int end = Math.min(start + RECIPES_VISIBLE, recipes.size());
+        int startIndex = this.scrollOffset * RECIPES_COLUMNS;
+        int endIndex = Math.min(startIndex + RECIPES_VISIBLE, recipes.size());
 
-        for (int visibleIndex = 0; visibleIndex < end - start; visibleIndex++) {
-            int recipeIndex = start + visibleIndex;
+        for (int visibleIndex = 0; visibleIndex < endIndex - startIndex; visibleIndex++) {
+            int recipeIndex = startIndex + visibleIndex;
             int col = visibleIndex % RECIPES_COLUMNS;
             int row = visibleIndex / RECIPES_COLUMNS;
 
@@ -156,8 +156,10 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
             int x = this.x + 52;
             int y = this.y + 14;
 
+            int startIndex = this.scrollOffset * RECIPES_COLUMNS;
+
             for (int visibleIndex = 0; visibleIndex < RECIPES_VISIBLE; visibleIndex++) {
-                int recipeIndex = this.scrollOffset + visibleIndex;
+                int recipeIndex = startIndex + visibleIndex;
                 if (recipeIndex >= this.handler.getOptionCount()) break;
 
                 int col = visibleIndex % RECIPES_COLUMNS;
@@ -230,11 +232,11 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
         super.drawMouseoverTooltip(context, mouseX, mouseY);
 
         List<ItemStack> recipes = this.handler.getDisplayRecipes();
-        int start = this.scrollOffset;
-        int end = Math.min(start + RECIPES_VISIBLE, recipes.size());
+        int startIndex = this.scrollOffset * RECIPES_COLUMNS;
+        int endIndex = Math.min(startIndex + RECIPES_VISIBLE, recipes.size());
 
-        for (int visibleIndex = 0; visibleIndex < end - start; visibleIndex++) {
-            int recipeIndex = start + visibleIndex;
+        for (int visibleIndex = 0; visibleIndex < endIndex - startIndex; visibleIndex++) {
+            int recipeIndex = startIndex + visibleIndex;
             int col = visibleIndex % RECIPES_COLUMNS;
             int row = visibleIndex / RECIPES_COLUMNS;
 
@@ -251,6 +253,12 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
                 break;
             }
         }
+    }
+
+    @Override
+    public boolean mouseReleased(Click click) {
+        this.mouseClicked = false;
+        return super.mouseReleased(click);
     }
 
     @Override

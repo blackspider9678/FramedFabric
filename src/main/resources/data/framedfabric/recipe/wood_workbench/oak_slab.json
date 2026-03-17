@@ -1,9 +1,0 @@
-{
-  "type": "framedfabric:wood_workbench",
-  "ingredient": "minecraft:oak_planks",
-  "input_count": 1,
-  "result": {
-    "id": "minecraft:oak_slab",
-    "count": 2
-  }
-}
