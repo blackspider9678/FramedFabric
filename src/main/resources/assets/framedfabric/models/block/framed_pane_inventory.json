@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/oak_door",
+  "textures": {
+    "layer0": "framedfabric:item/framed_texture"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:pale_oak_planks",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:pale_oak_trapdoor",
+    "count": 2
+  }
+}

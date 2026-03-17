@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:acacia_planks",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:acacia_trapdoor",
+    "count": 2
+  }
+}

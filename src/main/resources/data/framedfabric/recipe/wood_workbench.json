@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "/i/",
+    "PPP"
+  ],
+  "key": {
+    "/": "minecraft:stick",
+    "i": "minecraft:iron_ingot",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "framedfabric:wood_workbench",
+    "count": 1
+  }
+}

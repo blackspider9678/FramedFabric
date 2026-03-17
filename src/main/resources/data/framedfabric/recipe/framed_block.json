@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#/#",
+    "/ /",
+    "#/#"
+  ],
+  "key": {
+    "#": "#minecraft:planks",
+    "/": "minecraft:stick"
+  },
+  "result": {
+    "id": "framedfabric:framed_block",
+    "count": 1
+  }
+}

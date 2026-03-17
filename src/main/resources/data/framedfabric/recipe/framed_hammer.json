@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #i",
+    " /#",
+    "/  "
+  ],
+  "key": {
+    "#": "#minecraft:planks",
+    "i": "minecraft:iron_ingot",
+    "/": "minecraft:stick"
+  },
+  "result": {
+    "id": "framedfabric:hammer",
+    "count": 1
+  }
+}

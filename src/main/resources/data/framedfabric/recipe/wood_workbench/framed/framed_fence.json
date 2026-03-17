@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "framedfabric:framed_block",
+  "input_count": 1,
+  "result": {
+    "id": "framedfabric:framed_fence",
+    "count": 3
+  }
+}

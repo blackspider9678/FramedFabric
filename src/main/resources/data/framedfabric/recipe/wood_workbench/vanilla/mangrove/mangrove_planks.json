@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:mangrove_slab",
+  "input_count": 2,
+  "result": {
+    "id": "minecraft:mangrove_planks",
+    "count": 1
+  }
+}

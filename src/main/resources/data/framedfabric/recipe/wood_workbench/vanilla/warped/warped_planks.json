@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:warped_slab",
+  "input_count": 2,
+  "result": {
+    "id": "minecraft:warped_planks",
+    "count": 1
+  }
+}

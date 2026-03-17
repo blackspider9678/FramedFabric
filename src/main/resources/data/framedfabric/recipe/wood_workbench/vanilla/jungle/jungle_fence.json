@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:jungle_planks",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:jungle_fence",
+    "count": 3
+  }
+}

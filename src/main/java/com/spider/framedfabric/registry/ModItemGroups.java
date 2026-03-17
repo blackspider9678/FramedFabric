@@ -53,7 +53,7 @@ public final class ModItemGroups {
                         entries.add(ModBlocks.FRAMED_BUTTON);
                         entries.add(ModBlocks.FRAMED_PRESSURE_PLATE);
                         entries.add(ModBlocks.FRAMED_LIGHTNING_ROD);
-                        entries.add(ModBlocks.FRAMED_FLOWER_POT);
+                        //entries.add(ModBlocks.FRAMED_FLOWER_POT);
                         entries.add(ModBlocks.FRAMED_LADDER);
 
                         //Custom Style
