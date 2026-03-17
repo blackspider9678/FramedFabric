@@ -6,34 +6,32 @@ import com.spider.framedfabric.registry.ModBlocks;
 import com.spider.framedfabric.registry.ModRecipeTypes;
 import com.spider.framedfabric.registry.ModScreenHandlers;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingResultInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
+import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.screen.PropertyDelegate;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.slot.Slot;
 
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
-    private final Container input = new SimpleContainer(1) {
+public class WoodWorkbenchScreenHandler extends ScreenHandler {
+    private final Inventory input = new SimpleInventory(1) {
         @Override
-        public void setChanged() {
-            super.setChanged();
+        public void markDirty() {
+            super.markDirty();
 
-            if (WoodWorkbenchScreenHandler.this.world != null && !WoodWorkbenchScreenHandler.this.world.isClientSide()) {
+            if (WoodWorkbenchScreenHandler.this.world != null && !WoodWorkbenchScreenHandler.this.world.isClient()) {
                 var server = WoodWorkbenchScreenHandler.this.world.getServer();
                 if (server != null) {
                     server.execute(WoodWorkbenchScreenHandler.this::onInputChanged);
@@ -42,13 +40,13 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         }
     };
 
-    private final Level world;
+    private final World world;
     private ItemStack lastRecipeInput = ItemStack.EMPTY;
 
-    private final ResultContainer result = new ResultContainer();
-    private final ContainerLevelAccess context;
-    private final ContainerData properties = new SimpleContainerData(1);
-    private List<RecipeHolder<WoodWorkbenchRecipe>> availableRecipes = List.of();
+    private final CraftingResultInventory result = new CraftingResultInventory();
+    private final ScreenHandlerContext context;
+    private final PropertyDelegate properties = new ArrayPropertyDelegate(1);
+    private List<RecipeEntry<WoodWorkbenchRecipe>> availableRecipes = List.of();
 
     private int displayRevision = 0;
     private int lastAppliedClientRevision = -1;
@@ -60,31 +58,19 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         return this.displayRecipes;
     }
 
-    public WoodWorkbenchScreenHandler(int syncId, Inventory playerInventory) {
-        this(syncId, playerInventory, ContainerLevelAccess.NULL);
+    public WoodWorkbenchScreenHandler(int syncId, PlayerInventory playerInventory) {
+        this(syncId, playerInventory, ScreenHandlerContext.EMPTY);
     }
 
-    private static List<RecipeHolder<WoodWorkbenchRecipe>> findMatchingRecipes(Level world, ItemStack stack) {
+    private static List<RecipeEntry<WoodWorkbenchRecipe>> findMatchingRecipes(World world, ItemStack stack) {
         if (stack.isEmpty()) return List.of();
-        if (!(world.recipeAccess() instanceof RecipeManager recipeManager)) return List.of();
 
-        List<RecipeHolder<WoodWorkbenchRecipe>> matches = new ArrayList<>();
-
-        for (RecipeHolder<?> holder : recipeManager.getRecipes()) {
-            if (!(holder.value() instanceof WoodWorkbenchRecipe recipe)) {
-                continue;
-            }
-
-            if (recipe.getType() != ModRecipeTypes.WOOD_WORKBENCH || !recipe.matchesStack(stack)) {
-                continue;
-            }
-
-            @SuppressWarnings("unchecked")
-            RecipeHolder<WoodWorkbenchRecipe> typedHolder = (RecipeHolder<WoodWorkbenchRecipe>) holder;
-            matches.add(typedHolder);
-        }
-
-        return List.copyOf(matches);
+        return world.getRecipeManager()
+                .getSynchronizedRecipes()
+                .getAllOfType(ModRecipeTypes.WOOD_WORKBENCH)
+                .stream()
+                .filter(entry -> entry.value().matchesStack(stack))
+                .toList();
     }
 
     public void setClientDisplayRecipes(List<ItemStack> recipes) {
@@ -99,21 +85,21 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         }
     }
 
-    public WoodWorkbenchScreenHandler(int syncId, Inventory playerInventory, ContainerLevelAccess context) {
+    public WoodWorkbenchScreenHandler(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
         super(ModScreenHandlers.WOOD_WORKBENCH, syncId);
         this.context = context;
-        this.world = playerInventory.player.level();
+        this.world = playerInventory.player.getEntityWorld();
 
         // 0 = selected recipe index
         this.properties.set(0, -1);
-        this.addDataSlots(this.properties);
+        this.addProperties(this.properties);
 
 
 
         // Input slot
         this.addSlot(new Slot(this.input, 0, 20, 33) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean canInsert(ItemStack stack) {
                 return true;
             }
         });
@@ -121,19 +107,19 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         // Result slot
         this.addSlot(new Slot(this.result, 0, 143, 33) {
             @Override
-            public boolean mayPlace(ItemStack stack) {
+            public boolean canInsert(ItemStack stack) {
                 return false;
             }
 
             @Override
-            public boolean mayPickup(Player playerEntity) {
+            public boolean canTakeItems(PlayerEntity playerEntity) {
                 return hasValidSelection();
             }
 
             @Override
-            public void onTake(Player playerEntity, ItemStack stack) {
+            public void onTakeItem(PlayerEntity playerEntity, ItemStack stack) {
                 craftSelected(playerEntity);
-                super.onTake(playerEntity, stack);
+                super.onTakeItem(playerEntity, stack);
             }
         });
 
@@ -157,10 +143,10 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
     }
 
     public ItemStack getInputStack() {
-        return this.getSlot(0).getItem();
+        return this.getSlot(0).getStack();
     }
 
-    public List<RecipeHolder<WoodWorkbenchRecipe>> getAvailableRecipes() {
+    public List<RecipeEntry<WoodWorkbenchRecipe>> getAvailableRecipes() {
         return this.availableRecipes;
     }
 
@@ -169,7 +155,7 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
     }
 
     private void refreshAvailableRecipes() {
-        ItemStack inputStack = this.input.getItem(0);
+        ItemStack inputStack = this.input.getStack(0);
 
         if (inputStack.isEmpty()) {
             this.availableRecipes = List.of();
@@ -187,18 +173,18 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
     }
 
     private void syncDisplayRecipes() {
-        if (this.world.isClientSide()) return;
-        if (!(this.world instanceof net.minecraft.server.level.ServerLevel serverWorld)) return;
+        if (this.world.isClient()) return;
+        if (!(this.world instanceof net.minecraft.server.world.ServerWorld serverWorld)) return;
 
         List<ItemStack> snapshot = this.displayRecipes.stream()
                 .map(ItemStack::copy)
                 .toList();
 
-        for (Player player : serverWorld.players()) {
-            if (player.containerMenu == this && player instanceof ServerPlayer serverPlayer) {
+        for (PlayerEntity player : serverWorld.getPlayers()) {
+            if (player.currentScreenHandler == this && player instanceof ServerPlayerEntity serverPlayer) {
                 ServerPlayNetworking.send(
                         serverPlayer,
-                        new WoodWorkbenchRecipesPayload(this.containerId, snapshot)
+                        new WoodWorkbenchRecipesPayload(this.syncId, snapshot)
                 );
             }
         }
@@ -208,7 +194,7 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         if (a.size() != b.size()) return false;
 
         for (int i = 0; i < a.size(); i++) {
-            if (!ItemStack.isSameItemSameComponents(a.get(i), b.get(i))) return false;
+            if (!ItemStack.areItemsAndComponentsEqual(a.get(i), b.get(i))) return false;
             if (a.get(i).getCount() != b.get(i).getCount()) return false;
         }
 
@@ -216,19 +202,19 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
     }
 
     public void refreshRecipesIfNeeded() {
-        if (!this.world.isClientSide()) {
+        if (!this.world.isClient()) {
             return;
         }
 
-        ItemStack current = this.getSlot(0).getItem();
+        ItemStack current = this.getSlot(0).getStack();
 
-        if (!ItemStack.isSameItemSameComponents(current, this.lastRecipeInput)) {
+        if (!ItemStack.areItemsAndComponentsEqual(current, this.lastRecipeInput)) {
             this.lastRecipeInput = current.copy();
 
             if (current.isEmpty()) {
                 this.displayRecipes = List.of();
                 this.properties.set(0, -1);
-                this.result.setItem(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             }
         }
     }
@@ -244,18 +230,18 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
             this.properties.set(0, -1);
         }
         updateResult();
-        broadcastChanges();
+        sendContentUpdates();
     }
 
     public boolean hasInputItem() {
-        return !this.getSlot(0).getItem().isEmpty();
+        return !this.getSlot(0).getStack().isEmpty();
     }
 
     private boolean hasValidSelection() {
         int selected = getSelectedIndex();
         return selected >= 0
                 && selected < this.availableRecipes.size()
-                && !this.input.getItem(0).isEmpty();
+                && !this.input.getStack(0).isEmpty();
     }
 
     private void onInputChanged() {
@@ -270,126 +256,119 @@ public class WoodWorkbenchScreenHandler extends AbstractContainerMenu {
         }
 
         updateResult();
-        broadcastChanges();
+        sendContentUpdates();
     }
 
     private void updateResult() {
         int selected = getSelectedIndex();
 
         if (selected < 0 || selected >= this.availableRecipes.size()) {
-            this.result.setItem(0, ItemStack.EMPTY);
-            broadcastChanges();
+            this.result.setStack(0, ItemStack.EMPTY);
+            sendContentUpdates();
             return;
         }
 
         WoodWorkbenchRecipe recipe = this.availableRecipes.get(selected).value();
-        this.result.setItem(0, recipe.getResultStack());
-        broadcastChanges();
+        this.result.setStack(0, recipe.getResultStack());
+        sendContentUpdates();
     }
 
-    private void craftSelected(Player player) {
+    private void craftSelected(PlayerEntity player) {
         int selected = getSelectedIndex();
 
         if (selected < 0 || selected >= this.availableRecipes.size()) return;
 
         WoodWorkbenchRecipe recipe = this.availableRecipes.get(selected).value();
-        ItemStack inputStack = this.input.getItem(0);
+        ItemStack inputStack = this.input.getStack(0);
 
         if (inputStack.isEmpty() || inputStack.getCount() < recipe.getInputCount()) {
-            this.result.setItem(0, ItemStack.EMPTY);
+            this.result.setStack(0, ItemStack.EMPTY);
             return;
         }
 
-        inputStack.shrink(recipe.getInputCount());
+        inputStack.decrement(recipe.getInputCount());
 
         if (inputStack.isEmpty()) {
-            this.input.setItem(0, ItemStack.EMPTY);
+            this.input.setStack(0, ItemStack.EMPTY);
         }
 
         onInputChanged();
     }
 
     @Override
-    public boolean clickMenuButton(Player player, int id) {
-        int recipeCount = this.world.isClientSide() ? this.displayRecipes.size() : this.availableRecipes.size();
-        if (id < 0 || id >= recipeCount) {
-            return false;
-        }
-
-        if (this.world.isClientSide()) {
-            this.properties.set(0, id);
+    public boolean onButtonClick(PlayerEntity player, int id) {
+        if (id >= 0 && id < this.availableRecipes.size()) {
+            setSelectedIndex(id);
             return true;
         }
-
-        setSelectedIndex(id);
-        return true;
+        return false;
     }
 
     @Override
-    public ItemStack quickMoveStack(Player player, int slotIndex) {
+    public ItemStack quickMove(PlayerEntity player, int slotIndex) {
         ItemStack newStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(slotIndex);
 
-        if (slot == null || !slot.hasItem()) {
+        if (slot == null || !slot.hasStack()) {
             return ItemStack.EMPTY;
         }
 
-        ItemStack original = slot.getItem();
+        ItemStack original = slot.getStack();
         newStack = original.copy();
 
         // Result slot
         if (slotIndex == 1) {
-            original.getItem().onCraftedBy(original, player);
-            if (!this.moveItemStackTo(original, 2, 38, true)) {
+            original.getItem().onCraftByPlayer(original, player);
+            if (!this.insertItem(original, 2, 38, true)) {
                 return ItemStack.EMPTY;
             }
-            slot.onQuickCraft(original, newStack);
+            slot.onQuickTransfer(original, newStack);
         }
         // Input slot
         else if (slotIndex == 0) {
-            if (!this.moveItemStackTo(original, 2, 38, false)) {
+            if (!this.insertItem(original, 2, 38, false)) {
                 return ItemStack.EMPTY;
             }
         }
         // Player inventory
         else {
-            if (this.slots.get(0).getItem().isEmpty()) {
-                if (!this.moveItemStackTo(original, 0, 1, false)) {
+            if (this.slots.get(0).getStack().isEmpty()) {
+                if (!this.insertItem(original, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (slotIndex >= 2 && slotIndex < 29) {
-                if (!this.moveItemStackTo(original, 29, 38, false)) {
+                if (!this.insertItem(original, 29, 38, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (slotIndex >= 29 && slotIndex < 38) {
-                if (!this.moveItemStackTo(original, 2, 29, false)) {
+                if (!this.insertItem(original, 2, 29, false)) {
                     return ItemStack.EMPTY;
                 }
             }
         }
 
         if (original.isEmpty()) {
-            slot.setByPlayer(ItemStack.EMPTY);
+            slot.setStack(ItemStack.EMPTY);
         } else {
-            slot.setChanged();
+            slot.markDirty();
         }
 
         if (original.getCount() == newStack.getCount()) {
             return ItemStack.EMPTY;
         }
 
-        slot.onTake(player, original);
+        slot.onTakeItem(player, original);
         return newStack;
     }
 
     @Override
-    public void removed(Player player) {
-        super.removed(player);
-        this.context.execute((world, pos) -> this.clearContainer(player, this.input));
+    public void onClosed(PlayerEntity player) {
+        super.onClosed(player);
+        this.context.run((world, pos) -> this.dropInventory(player, this.input));
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return stillValid(this.context, player, ModBlocks.WOOD_WORKBENCH);
+    public boolean canUse(PlayerEntity player) {
+        return canUse(this.context, player, ModBlocks.WOOD_WORKBENCH);
     }
 }

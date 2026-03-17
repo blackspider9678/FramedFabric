@@ -1,6 +1,7 @@
 package com.spider.framedfabric;
 
 import com.spider.framedfabric.registry.*;
+import com.spider.framedfabric.screen.WoodWorkbenchRecipes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
@@ -16,6 +17,11 @@ public final class FramedFabric implements ModInitializer {
         ModBlocks.init();
         ModBlockEntities.init();
         ModItemGroups.init();
+        ModScreenHandlers.init();
+        ModPayloads.init();
+
+        //WoodWorkbenchRecipes.init();
+        ModRecipeTypes.init();
 
         LOGGER.info("FramedFabric initialized.");
     }

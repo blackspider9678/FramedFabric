@@ -1,6 +1,6 @@
 package com.spider.framedfabric.screen;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;

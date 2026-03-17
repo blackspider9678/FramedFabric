@@ -3,32 +3,36 @@ package com.spider.framedfabric.recipe;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeSerializer;
 
-public final class WoodWorkbenchRecipeSerializer {
+public class WoodWorkbenchRecipeSerializer implements RecipeSerializer<WoodWorkbenchRecipe> {
 
     public static final MapCodec<WoodWorkbenchRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ingredient.CODEC.fieldOf("ingredient").forGetter(WoodWorkbenchRecipe::getIngredient),
             Codec.INT.optionalFieldOf("input_count", 1).forGetter(WoodWorkbenchRecipe::getInputCount),
-            ItemStackTemplate.CODEC.fieldOf("result").forGetter(WoodWorkbenchRecipe::getResultTemplate)
+            ItemStack.VALIDATED_CODEC.fieldOf("result").forGetter(WoodWorkbenchRecipe::getResultStack)
     ).apply(instance, WoodWorkbenchRecipe::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, WoodWorkbenchRecipe> PACKET_CODEC =
-            StreamCodec.composite(
-                    Ingredient.CONTENTS_STREAM_CODEC, WoodWorkbenchRecipe::getIngredient,
-                    ByteBufCodecs.INT, WoodWorkbenchRecipe::getInputCount,
-                    ItemStackTemplate.STREAM_CODEC, WoodWorkbenchRecipe::getResultTemplate,
+    public static final PacketCodec<RegistryByteBuf, WoodWorkbenchRecipe> PACKET_CODEC =
+            PacketCodec.tuple(
+                    Ingredient.PACKET_CODEC, WoodWorkbenchRecipe::getIngredient,
+                    PacketCodecs.INTEGER, WoodWorkbenchRecipe::getInputCount,
+                    ItemStack.PACKET_CODEC, WoodWorkbenchRecipe::getResultStack,
                     WoodWorkbenchRecipe::new
             );
 
-    public static final RecipeSerializer<WoodWorkbenchRecipe> INSTANCE =
-            new RecipeSerializer<>(CODEC, PACKET_CODEC);
+    @Override
+    public MapCodec<WoodWorkbenchRecipe> codec() {
+        return CODEC;
+    }
 
-    private WoodWorkbenchRecipeSerializer() {
+    @Override
+    public PacketCodec<RegistryByteBuf, WoodWorkbenchRecipe> packetCodec() {
+        return PACKET_CODEC;
     }
 }

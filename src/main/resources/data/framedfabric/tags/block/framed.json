@@ -16,8 +16,12 @@
     "framedfabric:framed_mini_cube",
     "framedfabric:framed_flower_pot",
     "framedfabric:framed_lightning_rod",
+    "framedfabric:framed_ladder",
     "framedfabric:framed_checkered",
     "framedfabric:framed_checkered_slab",
-    "framedfabric:framed_checkered_vertical_slab"
+    "framedfabric:framed_checkered_vertical_slab",
+    "framedfabric:framed_large_post",
+    "framedfabric:framed_medium_post",
+    "framedfabric:framed_small_post"
   ]
 }

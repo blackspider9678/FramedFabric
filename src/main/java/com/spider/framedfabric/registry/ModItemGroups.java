@@ -30,6 +30,7 @@ public final class ModItemGroups {
                         // Tools / utility first
                         entries.add(ModItems.HAMMER);
                         entries.add(ModItems.WRENCH);
+                        entries.add(ModBlocks.WOOD_WORKBENCH);
 
                         // Basic shapes
                         // (These "add" calls work as long as the block has an associated BlockItem)
@@ -53,6 +54,7 @@ public final class ModItemGroups {
                         entries.add(ModBlocks.FRAMED_PRESSURE_PLATE);
                         entries.add(ModBlocks.FRAMED_LIGHTNING_ROD);
                         entries.add(ModBlocks.FRAMED_FLOWER_POT);
+                        entries.add(ModBlocks.FRAMED_LADDER);
 
                         //Custom Style
                         //entries.add(ModBlocks.FRAMED_SLOPE);

@@ -1,27 +1,27 @@
 package com.spider.framedfabric.recipe;
 
 import com.spider.framedfabric.registry.ModRecipeTypes;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.PlacementInfo;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.RecipeBookCategories;
-import net.minecraft.world.item.crafting.RecipeBookCategory;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.IngredientPlacement;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeSerializer;
+import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.book.RecipeBookCategories;
+import net.minecraft.recipe.book.RecipeBookCategory;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.world.World;
 
-public class WoodWorkbenchRecipe implements Recipe<SingleRecipeInput> {
+public class WoodWorkbenchRecipe implements Recipe<SingleStackRecipeInput> {
     private final Ingredient ingredient;
     private final int inputCount;
-    private final ItemStackTemplate result;
+    private final ItemStack result;
 
-    public WoodWorkbenchRecipe(Ingredient ingredient, int inputCount, ItemStackTemplate result) {
+    public WoodWorkbenchRecipe(Ingredient ingredient, int inputCount, ItemStack result) {
         this.ingredient = ingredient;
         this.inputCount = inputCount;
-        this.result = result;
+        this.result = result.copy();
     }
 
     public Ingredient getIngredient() {
@@ -32,12 +32,8 @@ public class WoodWorkbenchRecipe implements Recipe<SingleRecipeInput> {
         return inputCount;
     }
 
-    public ItemStackTemplate getResultTemplate() {
-        return result;
-    }
-
     public ItemStack getResultStack() {
-        return result.create();
+        return result.copy();
     }
 
     public boolean matchesStack(ItemStack stack) {
@@ -45,23 +41,13 @@ public class WoodWorkbenchRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public boolean matches(SingleRecipeInput input, Level world) {
+    public boolean matches(SingleStackRecipeInput input, World world) {
         return matchesStack(input.item());
     }
 
     @Override
-    public ItemStack assemble(SingleRecipeInput input) {
-        return result.create();
-    }
-
-    @Override
-    public boolean showNotification() {
-        return false;
-    }
-
-    @Override
-    public String group() {
-        return "";
+    public ItemStack craft(SingleStackRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+        return result.copy();
     }
 
     @Override
@@ -75,12 +61,12 @@ public class WoodWorkbenchRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        return PlacementInfo.create(this.ingredient);
+    public IngredientPlacement getIngredientPlacement() {
+        return IngredientPlacement.forSingleSlot(this.ingredient);
     }
 
     @Override
-    public RecipeBookCategory recipeBookCategory() {
+    public RecipeBookCategory getRecipeBookCategory() {
         return RecipeBookCategories.STONECUTTER;
     }
 }
