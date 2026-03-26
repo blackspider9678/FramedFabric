@@ -2,36 +2,47 @@ package com.spider.framedfabric.client.datagen;
 
 import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.registry.ModBlocks;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
+public class ModBlockTagProvider extends FabricTagsProvider.BlockTagsProvider {
 
-    public ModBlockTagProvider(FabricDataOutput output,
-                               CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public static final TagKey<Block> FRAMED =
+            TagKey.create(
+                    Registries.BLOCK,
+                    Identifier.fromNamespaceAndPath(FramedFabric.MOD_ID, "framed")
+            );
+
+    public ModBlockTagProvider(
+            FabricPackOutput output,
+            CompletableFuture<HolderLookup.Provider> registriesFuture
+    ) {
         super(output, registriesFuture);
     }
 
-    public static final TagKey<Block> FRAMED =
-            TagKey.of(RegistryKeys.BLOCK, Identifier.of(FramedFabric.MOD_ID, "framed"));
-
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup arg) {
-
-        valueLookupBuilder(BlockTags.AXE_MINEABLE)
-                .add(ModBlocks.FRAMED_ALL);
+    protected void addTags(HolderLookup.Provider provider) {
+        valueLookupBuilder(BlockTags.MINEABLE_WITH_AXE)
+                .add(ModBlocks.FRAMED_BLOCK)
+                .add(ModBlocks.FRAMED_STAIRS)
+                .add(ModBlocks.FRAMED_SLAB)
+                .add(ModBlocks.FRAMED_WALL)
+                .add(ModBlocks.FRAMED_FENCE);
 
         valueLookupBuilder(FRAMED)
-                .add(ModBlocks.FRAMED_ALL);
+                .add(ModBlocks.FRAMED_BLOCK)
+                .add(ModBlocks.FRAMED_STAIRS)
+                .add(ModBlocks.FRAMED_SLAB)
+                .add(ModBlocks.FRAMED_WALL)
+                .add(ModBlocks.FRAMED_FENCE);
 
         valueLookupBuilder(BlockTags.WALLS).add(ModBlocks.FRAMED_WALL);
         valueLookupBuilder(BlockTags.FENCES).add(ModBlocks.FRAMED_FENCE);

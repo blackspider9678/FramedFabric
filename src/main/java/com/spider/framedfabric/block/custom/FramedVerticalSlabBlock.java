@@ -6,89 +6,112 @@ import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.block.enums.VerticalSlabType;
 import com.spider.framedfabric.camo.FramedCamoLogic;
 import com.spider.framedfabric.registry.ModBlockEntities;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import org.jetbrains.annotations.Nullable;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
-public class FramedVerticalSlabBlock extends Block implements BlockEntityProvider, Waterloggable {
-    public static final MapCodec<FramedVerticalSlabBlock> CODEC = createCodec(FramedVerticalSlabBlock::new);
+public class FramedVerticalSlabBlock extends Block implements EntityBlock, SimpleWaterloggedBlock {
+    public static final MapCodec<FramedVerticalSlabBlock> CODEC = simpleCodec(FramedVerticalSlabBlock::new);
 
-    public static final BooleanProperty HAS_CAMO = BooleanProperty.of("has_camo");
+    public static final BooleanProperty HAS_CAMO = BooleanProperty.create("has_camo");
 
     public static final EnumProperty<VerticalSlabType> TYPE =
-            EnumProperty.of("type", VerticalSlabType.class);
+            EnumProperty.create("type", VerticalSlabType.class);
 
     // 1.21.10: no DirectionProperty; use EnumProperty<Direction>
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     // Base SINGLE occupies NORTH half (z 0..8)
-    private static final VoxelShape NORTH_SHAPE = Block.createCuboidShape(0, 0, 0, 16, 16, 8);
-    private static final VoxelShape SOUTH_SHAPE = Block.createCuboidShape(0, 0, 8, 16, 16, 16);
-    private static final VoxelShape WEST_SHAPE  = Block.createCuboidShape(0, 0, 0, 8, 16, 16);
-    private static final VoxelShape EAST_SHAPE  = Block.createCuboidShape(8, 0, 0, 16, 16, 16);
+    private static final VoxelShape NORTH_SHAPE = Block.box(0, 0, 0, 16, 16, 8);
+    private static final VoxelShape SOUTH_SHAPE = Block.box(0, 0, 8, 16, 16, 16);
+    private static final VoxelShape WEST_SHAPE  = Block.box(0, 0, 0, 8, 16, 16);
+    private static final VoxelShape EAST_SHAPE  = Block.box(8, 0, 0, 16, 16, 16);
 
-    public FramedVerticalSlabBlock(Settings settings) {
+    public FramedVerticalSlabBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState()
-                .with(HAS_CAMO, false)
-                .with(TYPE, VerticalSlabType.SINGLE)
-                .with(FACING, Direction.NORTH)
-                .with(WATERLOGGED, false)
-                .with(ROT, 1)
+        this.registerDefaultState(this.getStateDefinition().any()
+                .setValue(HAS_CAMO, false)
+                .setValue(TYPE, VerticalSlabType.SINGLE)
+                .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false)
+                .setValue(ROT, 1)
         );
     }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<? extends Block> getCodec() {
+    public MapCodec<? extends Block> codec() {
         return (MapCodec) CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(new Property[]{HAS_CAMO, TYPE, FACING, WATERLOGGED, ROT});
     }
 
     @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new FramedBlockEntity(ModBlockEntities.FRAMED, pos, state);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, net.minecraft.entity.player.PlayerEntity player, BlockHitResult hit) {
+    protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
+        return com.spider.framedfabric.blockentity.FramedProperties.hasCamo(state)
+                ? net.minecraft.world.level.block.RenderShape.INVISIBLE
+                : net.minecraft.world.level.block.RenderShape.MODEL;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, net.minecraft.world.entity.player.Player player, BlockHitResult hit) {
         FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
         return FramedUseHandler.handleUse(state, world, pos, player, hit, be);
+    }
+
+    @Override
+    protected InteractionResult useItemOn(
+            ItemStack itemStack,
+            BlockState state,
+            Level world,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hit
+    ) {
+        FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
+        return FramedUseHandler.handleUseItemOn(state, world, pos, player, hand, hit, be);
     }
 
     // -------------------------
@@ -96,30 +119,30 @@ public class FramedVerticalSlabBlock extends Block implements BlockEntityProvide
     // -------------------------
 
     @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockPos pos = ctx.getBlockPos();
-        World world = ctx.getWorld();
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        BlockPos pos = ctx.getClickedPos();
+        Level world = ctx.getLevel();
         BlockState existing = world.getBlockState(pos);
 
         // Merge ONLY when the click indicates merging.
-        if (existing.isOf(this) && shouldMerge(existing, ctx)) {
+        if (existing.is(this) && shouldMerge(existing, ctx)) {
             BlockState placed = existing
-                    .with(TYPE, VerticalSlabType.DOUBLE)
-                    .with(WATERLOGGED, false);
+                    .setValue(TYPE, VerticalSlabType.DOUBLE)
+                    .setValue(WATERLOGGED, false);
 
             // Preserve HAS_CAMO + ROT (same as you already do)
-            boolean has = existing.contains(HAS_CAMO) && existing.get(HAS_CAMO);
-            int rot = existing.contains(ROT) ? existing.get(ROT) : 1;
+            boolean has = existing.hasProperty(HAS_CAMO) && existing.getValue(HAS_CAMO);
+            int rot = existing.hasProperty(ROT) ? existing.getValue(ROT) : 1;
 
             if (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) {
                 has = fbe.hasAnyCamo();
             }
 
-            placed = placed.with(HAS_CAMO, has).with(ROT, rot);
+            placed = placed.setValue(HAS_CAMO, has).setValue(ROT, rot);
 
             // Keep original facing after merging
-            if (existing.contains(FACING)) {
-                placed = placed.with(FACING, existing.get(FACING));
+            if (existing.hasProperty(FACING)) {
+                placed = placed.setValue(FACING, existing.getValue(FACING));
             }
 
             return placed;
@@ -127,37 +150,37 @@ public class FramedVerticalSlabBlock extends Block implements BlockEntityProvide
 
         // Normal placement (new block space)
         FluidState fluidState = world.getFluidState(pos);
-        boolean water = fluidState.getFluid() == Fluids.WATER;
+        boolean water = fluidState.getType() == Fluids.WATER;
 
         Direction facing = pickFacing(ctx);
 
-        return this.getDefaultState()
-                .with(TYPE, VerticalSlabType.SINGLE)
-                .with(FACING, facing)
-                .with(WATERLOGGED, water);
+        return this.defaultBlockState()
+                .setValue(TYPE, VerticalSlabType.SINGLE)
+                .setValue(FACING, facing)
+                .setValue(WATERLOGGED, water);
     }
 
     // Looser replace rules are fine because we already merge in getPlacementState when existing.isOf(this).
     // Keeping it simple avoids fighting 1.21's changed signatures.
     @Override
-    protected boolean canReplace(BlockState state, ItemPlacementContext ctx) {
-        if (state.get(TYPE) == VerticalSlabType.DOUBLE) return false;
-        if (!ctx.getStack().isOf(this.asItem())) return false;
+    protected boolean canBeReplaced(BlockState state, BlockPlaceContext ctx) {
+        if (state.getValue(TYPE) == VerticalSlabType.DOUBLE) return false;
+        if (!ctx.getItemInHand().is(this.asItem())) return false;
 
         // Only allow replacing/merging when the click indicates a merge.
         return shouldMerge(state, ctx);
     }
 
-    private static Direction pickFacing(ItemPlacementContext ctx) {
-        Direction side = ctx.getSide();
+    private static Direction pickFacing(BlockPlaceContext ctx) {
+        Direction side = ctx.getClickedFace();
 
         // clicked a side -> occupy the half that TOUCHES the clicked block
         // (so we don't leave a gap)
         if (side.getAxis().isHorizontal()) return side.getOpposite();
 
         // clicked top/bottom -> choose based on hit position (dominant axis)
-        Vec3d hit = ctx.getHitPos();
-        BlockPos pos = ctx.getBlockPos();
+        Vec3 hit = ctx.getClickLocation();
+        BlockPos pos = ctx.getClickedPos();
 
         double lx = hit.x - pos.getX(); // 0..1
         double lz = hit.z - pos.getZ(); // 0..1
@@ -177,15 +200,15 @@ public class FramedVerticalSlabBlock extends Block implements BlockEntityProvide
     // -------------------------
 
     @Override
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (state.get(TYPE) == VerticalSlabType.DOUBLE) return VoxelShapes.fullCube();
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (state.getValue(TYPE) == VerticalSlabType.DOUBLE) return Shapes.block();
 
-        return switch (state.get(FACING)) {
+        return switch (state.getValue(FACING)) {
             case NORTH -> NORTH_SHAPE;
             case SOUTH -> SOUTH_SHAPE;
             case EAST  -> EAST_SHAPE;
             case WEST  -> WEST_SHAPE;
-            default    -> VoxelShapes.fullCube();
+            default    -> Shapes.block();
         };
     }
 
@@ -195,24 +218,24 @@ public class FramedVerticalSlabBlock extends Block implements BlockEntityProvide
 
     @Override
     protected FluidState getFluidState(BlockState state) {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(
+    protected BlockState updateShape(
             BlockState state,
-            WorldView world,
-            ScheduledTickView tickView,
+            LevelReader world,
+            ScheduledTickAccess tickView,
             BlockPos pos,
             Direction direction,
             BlockPos neighborPos,
             BlockState neighborState,
-            Random random
+            RandomSource random
     ) {
-        if (state.get(WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        if (state.getValue(WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     // -------------------------
@@ -220,34 +243,34 @@ public class FramedVerticalSlabBlock extends Block implements BlockEntityProvide
     // -------------------------
 
     @Override
-    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (world instanceof ServerWorld sw) {
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+        if (world instanceof ServerLevel sw) {
             if (sw.getBlockEntity(pos) instanceof FramedBlockEntity be) {
                 for (int i = 0; i < FramedBlockEntity.MAX_CAMO_PARTS; i++) {
                     if (be.hasCamoPart(i)) {
                         ItemStack drop = FramedCamoLogic.camoRefundStack(be, i);
-                        if (!drop.isEmpty()) Block.dropStack(sw, pos, drop);
+                        if (!drop.isEmpty()) Block.popResource(sw, pos, drop);
                     }
                 }
             }
         }
-        return super.onBreak(world, pos, state, player);
+        return super.playerWillDestroy(world, pos, state, player);
     }
 
-    private static boolean shouldMerge(BlockState existing, ItemPlacementContext ctx) {
-        if (!existing.isOf(ctx.getWorld().getBlockState(ctx.getBlockPos()).getBlock())) return false; // defensive
-        if (existing.get(TYPE) == VerticalSlabType.DOUBLE) return false;
+    private static boolean shouldMerge(BlockState existing, BlockPlaceContext ctx) {
+        if (!existing.is(ctx.getLevel().getBlockState(ctx.getClickedPos()).getBlock())) return false; // defensive
+        if (existing.getValue(TYPE) == VerticalSlabType.DOUBLE) return false;
 
-        Direction facing = existing.get(FACING);
-        Direction side = ctx.getSide();
+        Direction facing = existing.getValue(FACING);
+        Direction side = ctx.getClickedFace();
 
         // If you clicked the slab's "inside face" (the face towards the empty half), merge.
         if (side == facing.getOpposite()) return true;
 
         // If you clicked top/bottom, merge only if you're aiming at the EMPTY half.
         if (side == Direction.UP || side == Direction.DOWN) {
-            BlockPos pos = ctx.getBlockPos();
-            Vec3d hit = ctx.getHitPos();
+            BlockPos pos = ctx.getClickedPos();
+            Vec3 hit = ctx.getClickLocation();
             double lx = hit.x - pos.getX(); // 0..1
             double lz = hit.z - pos.getZ(); // 0..1
 

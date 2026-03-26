@@ -7,6 +7,6 @@ public final class ModPayloads {
     private ModPayloads() {}
 
     public static void init() {
-        PayloadTypeRegistry.playS2C().register(WoodWorkbenchRecipesPayload.ID, WoodWorkbenchRecipesPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(WoodWorkbenchRecipesPayload.ID, WoodWorkbenchRecipesPayload.CODEC);
     }
 }

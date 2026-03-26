@@ -4,83 +4,87 @@ import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.registry.ModBlockEntities;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
 
-public class FramedSlopeBlock extends AbstractFramedEntityBlock implements Waterloggable {
+public class FramedSlopeBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
     // Don’t type this as DirectionProperty in your mappings; just keep it untyped.
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
-    public static final EnumProperty<BlockHalf> HALF = Properties.BLOCK_HALF;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 
-    public FramedSlopeBlock(Settings settings) {
+    public FramedSlopeBlock(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState()
-                .with(FACING, Direction.NORTH)
-                .with(HALF, BlockHalf.BOTTOM)
-                .with(Properties.WATERLOGGED, false)
+        registerDefaultState(defaultBlockState()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(HALF, Half.BOTTOM)
+                .setValue(BlockStateProperties.WATERLOGGED, false)
         );
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return null;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
-        builder.add(FACING, HALF, Properties.WATERLOGGED);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING, HALF, BlockStateProperties.WATERLOGGED);
     }
 
     @Override
-    public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         // Match your constructor: (BlockEntityType, pos, state)
         return new FramedBlockEntity(ModBlockEntities.FRAMED, pos, state);
     }
 
     @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        Direction facing = ctx.getHorizontalPlayerFacing();
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        Direction facing = ctx.getHorizontalDirection();
 
-        double hitY = ctx.getHitPos().y - ctx.getBlockPos().getY();
-        BlockHalf half = (hitY > 0.5) ? BlockHalf.TOP : BlockHalf.BOTTOM;
+        double hitY = ctx.getClickLocation().y - ctx.getClickedPos().getY();
+        Half half = (hitY > 0.5) ? Half.TOP : Half.BOTTOM;
 
-        FluidState fs = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        boolean waterlogged = fs.getFluid() == Fluids.WATER;
+        FluidState fs = ctx.getLevel().getFluidState(ctx.getClickedPos());
+        boolean waterlogged = fs.getType() == Fluids.WATER;
 
-        return getDefaultState()
-                .with(FACING, facing)
-                .with(HALF, half)
-                .with(Properties.WATERLOGGED, waterlogged);
+        return defaultBlockState()
+                .setValue(FACING, facing)
+                .setValue(HALF, half)
+                .setValue(BlockStateProperties.WATERLOGGED, waterlogged);
     }
 
     @Override
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    public BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(Properties.WATERLOGGED)
-                ? Fluids.WATER.getStill(false)
+        return state.getValue(BlockStateProperties.WATERLOGGED)
+                ? Fluids.WATER.getSource(false)
                 : super.getFluidState(state);
     }
 }

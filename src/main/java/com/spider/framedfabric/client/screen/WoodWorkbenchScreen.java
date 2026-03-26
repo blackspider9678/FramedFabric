@@ -1,57 +1,59 @@
 package com.spider.framedfabric.client.screen;
 
 import com.spider.framedfabric.screen.WoodWorkbenchScreenHandler;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
-import com.spider.framedfabric.recipe.WoodWorkbenchRecipe;
-import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandler> {
-    private static final Identifier TEXTURE = Identifier.ofVanilla("textures/gui/container/stonecutter.png");
-
+public class WoodWorkbenchScreen extends AbstractContainerScreen<WoodWorkbenchScreenHandler> {
+    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/container/stonecutter.png");
+    private static final Identifier SCROLLER_SPRITE = Identifier.withDefaultNamespace("container/stonecutter/scroller");
+    private static final Identifier SCROLLER_DISABLED_SPRITE = Identifier.withDefaultNamespace("container/stonecutter/scroller_disabled");
+    private static final Identifier RECIPE_SELECTED_SPRITE = Identifier.withDefaultNamespace("container/stonecutter/recipe_selected");
+    private static final Identifier RECIPE_HIGHLIGHTED_SPRITE = Identifier.withDefaultNamespace("container/stonecutter/recipe_highlighted");
+    private static final Identifier RECIPE_SPRITE = Identifier.withDefaultNamespace("container/stonecutter/recipe");
     private static final int SCROLLER_HEIGHT = 15;
     private static final int RECIPES_COLUMNS = 4;
     private static final int RECIPES_ROWS = 3;
     private static final int RECIPES_VISIBLE = RECIPES_COLUMNS * RECIPES_ROWS;
 
     private float scrollAmount;
-    private boolean mouseClicked;
+    private boolean scrolling;
     private int scrollOffset;
 
-
-
-    public WoodWorkbenchScreen(WoodWorkbenchScreenHandler handler, PlayerInventory inventory, Text title) {
-        super(handler, inventory, title);
-
-        this.backgroundWidth = 176;
-        this.backgroundHeight = 166;
-        this.playerInventoryTitleY = this.backgroundHeight - 94;
+    public WoodWorkbenchScreen(WoodWorkbenchScreenHandler handler, Inventory inventory, Component title) {
+        super(handler, inventory, title, 176, 166);
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleX = 8;
-        this.titleY = 6;
+        this.titleLabelX = 8;
+        this.titleLabelY = 6;
     }
 
     @Override
-    public void handledScreenTick() {
-        super.handledScreenTick();
+    public void containerTick() {
+        super.containerTick();
+        this.menu.refreshRecipesIfNeeded();
 
         int maxScroll = getMaxScroll();
         if (this.scrollOffset > maxScroll) {
             this.scrollOffset = maxScroll;
         }
+
         if (maxScroll <= 0) {
             this.scrollOffset = 0;
             this.scrollAmount = 0.0f;
@@ -61,36 +63,30 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
     }
 
     @Override
-    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        int x = this.x;
-        int y = this.y;
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        super.extractBackground(graphics, mouseX, mouseY, delta);
+        int x = this.leftPos;
+        int y = this.topPos;
 
-        context.drawTexture(
+        graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 TEXTURE,
                 x, y,
-                0, 0,
-                this.backgroundWidth, this.backgroundHeight,
+                0.0F, 0.0F,
+                this.imageWidth, this.imageHeight,
                 256, 256
         );
 
         int scrollbarY = y + 15 + (int) (41.0f * this.scrollAmount);
-        int v = shouldShowScrollbar() ? 0 : 12;
+        Identifier scrollerSprite = shouldShowScrollbar() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, scrollerSprite, x + 119, scrollbarY, 12, SCROLLER_HEIGHT);
 
-        context.drawTexture(
-                RenderPipelines.GUI_TEXTURED,
-                TEXTURE,
-                x + 119, scrollbarY,
-                176, v,
-                12, SCROLLER_HEIGHT,
-                256, 256
-        );
-
-        renderRecipeButtons(context, mouseX, mouseY, x, y);
+        extractRecipeButtons(graphics, mouseX, mouseY, x, y);
+        extractRecipes(graphics, x, y);
     }
 
-    private void renderRecipeButtons(DrawContext context, int mouseX, int mouseY, int x, int y) {
-        List<ItemStack> recipes = this.handler.getDisplayRecipes();
+    private void extractRecipeButtons(GuiGraphicsExtractor graphics, int mouseX, int mouseY, int x, int y) {
+        List<ItemStack> recipes = this.menu.getDisplayRecipes();
         int startIndex = this.scrollOffset * RECIPES_COLUMNS;
         int endIndex = Math.min(startIndex + RECIPES_VISIBLE, recipes.size());
 
@@ -98,89 +94,77 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
             int recipeIndex = startIndex + visibleIndex;
             int col = visibleIndex % RECIPES_COLUMNS;
             int row = visibleIndex / RECIPES_COLUMNS;
-
             int buttonX = x + 52 + col * 16;
-            int buttonY = y + 14 + row * 18;
+            int buttonY = y + 15 + row * 18;
 
-            boolean hovered = mouseX >= buttonX && mouseY >= buttonY && mouseX < buttonX + 16 && mouseY < buttonY + 18;
-            boolean selected = recipeIndex == this.handler.getSelectedIndex();
+            boolean hovered = mouseX >= buttonX && mouseY >= buttonY - 1 && mouseX < buttonX + 16 && mouseY < buttonY + 17;
+            boolean selected = recipeIndex == this.menu.getSelectedIndex();
 
-            drawRecipeButton(context, buttonX, buttonY, selected, hovered);
-
-            ItemStack stack = recipes.get(recipeIndex);
-            context.drawItem(stack, buttonX, buttonY + 1);
+            drawRecipeButton(graphics, buttonX, buttonY, selected, hovered);
         }
     }
 
-    private void drawRecipeButton(DrawContext context, int x, int y, boolean selected, boolean hovered) {
-        int fill;
-        int borderLight;
-        int borderDark;
+    private void extractRecipes(GuiGraphicsExtractor graphics, int x, int y) {
+        List<ItemStack> recipes = this.menu.getDisplayRecipes();
+        int startIndex = this.scrollOffset * RECIPES_COLUMNS;
+        int endIndex = Math.min(startIndex + RECIPES_VISIBLE, recipes.size());
 
-        if (selected) {
-            fill = 0xFFD6CAA3;
-            borderLight = 0xFFF3E7BE;
-            borderDark = 0xFF8C7A4F;
-        } else if (hovered) {
-            fill = 0xFFC8BC96;
-            borderLight = 0xFFE8DCB2;
-            borderDark = 0xFF7D6D46;
-        } else {
-            fill = 0x00000000;
-            borderLight = 0x00000000;
-            borderDark = 0x00000000;
+        for (int visibleIndex = 0; visibleIndex < endIndex - startIndex; visibleIndex++) {
+            int recipeIndex = startIndex + visibleIndex;
+            int col = visibleIndex % RECIPES_COLUMNS;
+            int row = visibleIndex / RECIPES_COLUMNS;
+            int buttonX = x + 52 + col * 16;
+            int buttonY = y + 16 + row * 18;
+            graphics.item(recipes.get(recipeIndex), buttonX, buttonY);
         }
+    }
 
-        if (fill != 0) {
-            context.fill(x, y, x + 16, y + 18, fill);
-
-            // top
-            context.fill(x, y, x + 16, y + 1, borderLight);
-            // left
-            context.fill(x, y, x + 1, y + 18, borderLight);
-            // bottom
-            context.fill(x, y + 17, x + 16, y + 18, borderDark);
-            // right
-            context.fill(x + 15, y, x + 16, y + 18, borderDark);
-        }
+    private void drawRecipeButton(GuiGraphicsExtractor graphics, int x, int y, boolean selected, boolean hovered) {
+        Identifier sprite = selected
+                ? RECIPE_SELECTED_SPRITE
+                : hovered ? RECIPE_HIGHLIGHTED_SPRITE : RECIPE_SPRITE;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y - 1, 16, 18);
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        this.mouseClicked = false;
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        this.scrolling = false;
 
         double mouseX = click.x();
         double mouseY = click.y();
 
         if (hasInputAndOptions()) {
-            int x = this.x + 52;
-            int y = this.y + 14;
-
+            int x = this.leftPos + 52;
+            int y = this.topPos + 14;
             int startIndex = this.scrollOffset * RECIPES_COLUMNS;
 
             for (int visibleIndex = 0; visibleIndex < RECIPES_VISIBLE; visibleIndex++) {
                 int recipeIndex = startIndex + visibleIndex;
-                if (recipeIndex >= this.handler.getOptionCount()) break;
+                if (recipeIndex >= this.menu.getOptionCount()) {
+                    break;
+                }
 
                 int col = visibleIndex % RECIPES_COLUMNS;
                 int row = visibleIndex / RECIPES_COLUMNS;
-
                 double dx = mouseX - (x + col * 16);
                 double dy = mouseY - (y + row * 18);
 
                 if (dx >= 0.0 && dy >= 0.0 && dx < 16.0 && dy < 18.0) {
-                    this.client.interactionManager.clickButton(this.handler.syncId, recipeIndex);
-                    return true;
+                    if (this.menu.clickMenuButton(this.minecraft.player, recipeIndex)) {
+                        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0f));
+                        this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, recipeIndex);
+                        return true;
+                    }
                 }
             }
 
-            int scrollX1 = this.x + 119;
-            int scrollY1 = this.y + 9;
+            int scrollX1 = this.leftPos + 119;
+            int scrollY1 = this.topPos + 9;
             int scrollX2 = scrollX1 + 12;
             int scrollY2 = scrollY1 + 54;
 
             if (mouseX >= scrollX1 && mouseX < scrollX2 && mouseY >= scrollY1 && mouseY < scrollY2) {
-                this.mouseClicked = true;
+                this.scrolling = true;
             }
         }
 
@@ -188,14 +172,12 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
     }
 
     @Override
-    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
-        if (this.mouseClicked && shouldShowScrollbar()) {
-            double mouseY = click.y();
-
-            int top = this.y + 14;
-            int bottom = top + 54;
-            this.scrollAmount = ((float) mouseY - (float) top - 7.5f) / ((float) (bottom - top) - 15.0f);
-            this.scrollAmount = Math.max(0.0f, Math.min(1.0f, this.scrollAmount));
+    public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
+        if (this.scrolling && shouldShowScrollbar()) {
+            float top = this.topPos + 14;
+            float bottom = top + 54;
+            this.scrollAmount = ((float) click.y() - top - 7.5f) / (bottom - top - 15.0f);
+            this.scrollAmount = Mth.clamp(this.scrollAmount, 0.0f, 1.0f);
             this.scrollOffset = Math.round(this.scrollAmount * getMaxScroll());
             return true;
         }
@@ -205,33 +187,39 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)) {
+            return true;
+        }
+
         if (shouldShowScrollbar()) {
             int maxScroll = getMaxScroll();
-            float step = (float) verticalAmount / (float) maxScroll;
-            this.scrollAmount = Math.max(0.0f, Math.min(1.0f, this.scrollAmount - step));
-            this.scrollOffset = Math.round(this.scrollAmount * maxScroll);
+            if (maxScroll > 0) {
+                float step = (float) verticalAmount / (float) maxScroll;
+                this.scrollAmount = Mth.clamp(this.scrollAmount - step, 0.0f, 1.0f);
+                this.scrollOffset = Math.round(this.scrollAmount * maxScroll);
+            }
         }
 
         return true;
     }
 
     private boolean hasInputAndOptions() {
-        return this.handler.hasInputItem() && this.handler.getOptionCount() > 0;
+        return this.menu.hasInputItem() && this.menu.getOptionCount() > 0;
     }
 
     private boolean shouldShowScrollbar() {
-        return this.handler.getOptionCount() > RECIPES_VISIBLE;
+        return this.menu.getOptionCount() > RECIPES_VISIBLE;
     }
 
     private int getMaxScroll() {
-        return Math.max(0, (this.handler.getOptionCount() + RECIPES_COLUMNS - 1) / RECIPES_COLUMNS - RECIPES_ROWS);
+        return Math.max(0, (this.menu.getOptionCount() + RECIPES_COLUMNS - 1) / RECIPES_COLUMNS - RECIPES_ROWS);
     }
 
     @Override
-    protected void drawMouseoverTooltip(DrawContext context, int mouseX, int mouseY) {
-        super.drawMouseoverTooltip(context, mouseX, mouseY);
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
 
-        List<ItemStack> recipes = this.handler.getDisplayRecipes();
+        List<ItemStack> recipes = this.menu.getDisplayRecipes();
         int startIndex = this.scrollOffset * RECIPES_COLUMNS;
         int endIndex = Math.min(startIndex + RECIPES_VISIBLE, recipes.size());
 
@@ -239,32 +227,19 @@ public class WoodWorkbenchScreen extends HandledScreen<WoodWorkbenchScreenHandle
             int recipeIndex = startIndex + visibleIndex;
             int col = visibleIndex % RECIPES_COLUMNS;
             int row = visibleIndex / RECIPES_COLUMNS;
-
-            int buttonX = this.x + 52 + col * 16;
-            int buttonY = this.y + 14 + row * 18;
+            int buttonX = this.leftPos + 52 + col * 16;
+            int buttonY = this.topPos + 16 + row * 18;
 
             if (mouseX >= buttonX && mouseX < buttonX + 16 && mouseY >= buttonY && mouseY < buttonY + 18) {
-                context.drawItemTooltip(
-                        this.textRenderer,
-                        recipes.get(recipeIndex),
-                        mouseX,
-                        mouseY
-                );
+                graphics.setTooltipForNextFrame(this.font, recipes.get(recipeIndex), mouseX, mouseY);
                 break;
             }
         }
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
-        this.mouseClicked = false;
+    public boolean mouseReleased(MouseButtonEvent click) {
+        this.scrolling = false;
         return super.mouseReleased(click);
-    }
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        super.render(context, mouseX, mouseY, delta);
-        this.drawMouseoverTooltip(context, mouseX, mouseY);
     }
 }

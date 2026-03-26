@@ -4,12 +4,17 @@ import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.block.*;
 import com.spider.framedfabric.block.custom.*;
 import com.spider.framedfabric.block.FramedLadderBlock;
-import net.minecraft.block.*;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +23,11 @@ import java.util.function.Function;
 public final class ModBlocks {
     private ModBlocks() {}
 
-    private static final AbstractBlock.Settings BASE =
-            AbstractBlock.Settings.create()
+    private static final BlockBehaviour.Properties BASE =
+            BlockBehaviour.Properties.of()
                     .strength(1.5f)
-                    .sounds(BlockSoundGroup.WOOD)
-                    .nonOpaque()
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
             ;
 
     /** All framed blocks, auto-filled as we register. */
@@ -50,7 +55,7 @@ public final class ModBlocks {
 
     public static final Block FRAMED_STAIRS =
             register("framed_stairs",
-                    s -> new FramedStairsBlock(Blocks.OAK_PLANKS.getDefaultState(), s.nonOpaque()),
+                    s -> new FramedStairsBlock(Blocks.OAK_PLANKS.defaultBlockState(), s.noOcclusion()),
                     BASE);
 
     public static final Block FRAMED_VERTICAL_STAIRS =
@@ -96,7 +101,7 @@ public final class ModBlocks {
     //Custom Blocks
     public static final Block FRAMED_SLOPE =
             register("framed_slope", FramedSlopeBlock::new,
-                    AbstractBlock.Settings.copy(Blocks.OAK_PLANKS).nonOpaque());
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion());
 
     public static final Block FRAMED_CORNER_POST =
             register("framed_corner_post", FramedCornerPostBlock::new, BASE);
@@ -136,21 +141,30 @@ public final class ModBlocks {
 
     public static final Block WOOD_WORKBENCH =
             register("wood_workbench", WoodWorkbenchBlock::new,
-                    AbstractBlock.Settings.create()
+                    BlockBehaviour.Properties.of()
                             .strength(2.5f)
-                            .sounds(BlockSoundGroup.WOOD)
-                            .nonOpaque());
+                            .sound(SoundType.WOOD)
+                            .noOcclusion());
 
     public static void init() {}
 
-    private static Block register(String path, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings) {
-        Identifier id = Identifier.of(FramedFabric.MOD_ID, path);
-        RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
+    private static Block register(String path, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties settings) {
+        Identifier id = Identifier.fromNamespaceAndPath(FramedFabric.MOD_ID, path);
+        ResourceKey<Block> blockKey = ResourceKey.create(Registries.BLOCK, id);
+        ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, id);
 
-        Block block = Blocks.register(key, factory, settings);
-        Items.register(block);
+        Block block = Blocks.register(blockKey, factory, settings);
+        BlockItem blockItem = new BlockItem(
+                block,
+                new Item.Properties()
+                        .useBlockDescriptionPrefix()
+                        .requiredFeatures(block.requiredFeatures())
+                        .setId(itemKey)
+        );
+        blockItem.registerBlocks(Item.BY_BLOCK, blockItem);
+        Registry.register(BuiltInRegistries.ITEM, itemKey, blockItem);
 
-        FRAMED_ALL.add(block); // <-- auto add here
+        FRAMED_ALL.add(block);
         return block;
     }
 }

@@ -1,28 +1,29 @@
 package com.spider.framedfabric.net.payload;
 
 import com.spider.framedfabric.FramedFabric;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public record WoodWorkbenchRecipesPayload(int syncId, List<ItemStack> recipes) implements CustomPayload {
-    public static final Id<WoodWorkbenchRecipesPayload> ID =
-            new Id<>(Identifier.of(FramedFabric.MOD_ID, "wood_workbench_recipes"));
+public record WoodWorkbenchRecipesPayload(int syncId, List<ItemStack> recipes) implements CustomPacketPayload {
+    public static final Type<WoodWorkbenchRecipesPayload> ID =
+            new Type<>(Identifier.fromNamespaceAndPath(FramedFabric.MOD_ID, "wood_workbench_recipes"));
 
-    public static final PacketCodec<RegistryByteBuf, WoodWorkbenchRecipesPayload> CODEC =
-            PacketCodec.tuple(
-                    PacketCodecs.INTEGER, WoodWorkbenchRecipesPayload::syncId,
-                    ItemStack.PACKET_CODEC.collect(PacketCodecs.toList()), WoodWorkbenchRecipesPayload::recipes,
+    public static final StreamCodec<RegistryFriendlyByteBuf, WoodWorkbenchRecipesPayload> CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT, WoodWorkbenchRecipesPayload::syncId,
+                    ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), WoodWorkbenchRecipesPayload::recipes,
                     WoodWorkbenchRecipesPayload::new
             );
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

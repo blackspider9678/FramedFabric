@@ -4,82 +4,86 @@ import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
-import net.minecraft.block.*;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
-public class FramedHalfSlabBlock extends AbstractFramedEntityBlock implements Waterloggable {
+public class FramedHalfSlabBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final MapCodec<FramedHalfSlabBlock> CODEC = createCodec(FramedHalfSlabBlock::new);
+    public static final MapCodec<FramedHalfSlabBlock> CODEC = simpleCodec(FramedHalfSlabBlock::new);
 
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
-    public static final EnumProperty<BlockHalf> HALF = Properties.BLOCK_HALF;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
 
     // Base volume is SOUTH + BOTTOM: [0..16, 0..8, 8..16]
-    private static final VoxelShape SOUTH_BOTTOM = Block.createCuboidShape(0, 0, 8, 16, 8, 16);
-    private static final VoxelShape NORTH_BOTTOM = Block.createCuboidShape(0, 0, 0, 16, 8, 8);
-    private static final VoxelShape EAST_BOTTOM  = Block.createCuboidShape(8, 0, 0, 16, 8, 16);
-    private static final VoxelShape WEST_BOTTOM  = Block.createCuboidShape(0, 0, 0, 8, 8, 16);
+    private static final VoxelShape SOUTH_BOTTOM = Block.box(0, 0, 8, 16, 8, 16);
+    private static final VoxelShape NORTH_BOTTOM = Block.box(0, 0, 0, 16, 8, 8);
+    private static final VoxelShape EAST_BOTTOM  = Block.box(8, 0, 0, 16, 8, 16);
+    private static final VoxelShape WEST_BOTTOM  = Block.box(0, 0, 0, 8, 8, 16);
 
-    private static final VoxelShape SOUTH_TOP = Block.createCuboidShape(0, 8, 8, 16, 16, 16);
-    private static final VoxelShape NORTH_TOP = Block.createCuboidShape(0, 8, 0, 16, 16, 8);
-    private static final VoxelShape EAST_TOP  = Block.createCuboidShape(8, 8, 0, 16, 16, 16);
-    private static final VoxelShape WEST_TOP  = Block.createCuboidShape(0, 8, 0, 8, 16, 16);
+    private static final VoxelShape SOUTH_TOP = Block.box(0, 8, 8, 16, 16, 16);
+    private static final VoxelShape NORTH_TOP = Block.box(0, 8, 0, 16, 16, 8);
+    private static final VoxelShape EAST_TOP  = Block.box(8, 8, 0, 16, 16, 16);
+    private static final VoxelShape WEST_TOP  = Block.box(0, 8, 0, 8, 16, 16);
 
-    public FramedHalfSlabBlock(Settings settings) {
+    public FramedHalfSlabBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(
-                this.getStateManager().getDefaultState()
-                        .with(ROT, 1)
-                        .with(HAS_CAMO, false)
-                        .with(Properties.WATERLOGGED, false)
-                        .with(FACING, Direction.SOUTH)
-                        .with(HALF, BlockHalf.BOTTOM)
+        this.registerDefaultState(
+                this.getStateDefinition().any()
+                        .setValue(ROT, 1)
+                        .setValue(HAS_CAMO, false)
+                        .setValue(BlockStateProperties.WATERLOGGED, false)
+                        .setValue(FACING, Direction.SOUTH)
+                        .setValue(HALF, Half.BOTTOM)
         );
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockState state = super.getPlacementState(ctx);
-        if (state == null) state = this.getDefaultState();
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        BlockState state = super.getStateForPlacement(ctx);
+        if (state == null) state = this.defaultBlockState();
 
-        BlockPos pos = ctx.getBlockPos();
-        var hit = ctx.getHitPos();
+        BlockPos pos = ctx.getClickedPos();
+        var hit = ctx.getClickLocation();
 
         double lx = hit.x - pos.getX(); // 0..1
         double ly = hit.y - pos.getY(); // 0..1
         double lz = hit.z - pos.getZ(); // 0..1
 
-        boolean waterlogged = ctx.getWorld().getFluidState(pos).getFluid() == Fluids.WATER;
+        boolean waterlogged = ctx.getLevel().getFluidState(pos).getType() == Fluids.WATER;
 
         // TOP/BOTTOM selection:
         // - click underside => TOP (since you're placing "against" the underside)
         // - click top face => BOTTOM
         // - click side face => decide by aiming high/low
-        BlockHalf half;
-        Direction side = ctx.getSide();
+        Half half;
+        Direction side = ctx.getClickedFace();
 
-        if (side == Direction.DOWN) half = BlockHalf.TOP;
-        else if (side == Direction.UP) half = BlockHalf.BOTTOM;
-        else half = (ly >= 0.5) ? BlockHalf.TOP : BlockHalf.BOTTOM;
+        if (side == Direction.DOWN) half = Half.TOP;
+        else if (side == Direction.UP) half = Half.BOTTOM;
+        else half = (ly >= 0.5) ? Half.TOP : Half.BOTTOM;
 
         // FACING selection:
         // - if you click a side face, the panel goes on that side of the block space
@@ -94,9 +98,9 @@ public class FramedHalfSlabBlock extends AbstractFramedEntityBlock implements Wa
         }
 
         return state
-                .with(Properties.WATERLOGGED, waterlogged)
-                .with(HALF, half)
-                .with(FACING, facing);
+                .setValue(BlockStateProperties.WATERLOGGED, waterlogged)
+                .setValue(HALF, half)
+                .setValue(FACING, facing);
     }
 
     private static Direction pickNearestHorizontalSide(double lx, double lz) {
@@ -117,8 +121,8 @@ public class FramedHalfSlabBlock extends AbstractFramedEntityBlock implements Wa
     }
 
     private static VoxelShape shapeFor(BlockState state) {
-        boolean top = state.get(HALF) == BlockHalf.TOP;
-        return switch (state.get(FACING)) {
+        boolean top = state.getValue(HALF) == Half.TOP;
+        return switch (state.getValue(FACING)) {
             case NORTH -> top ? NORTH_TOP : NORTH_BOTTOM;
             case SOUTH -> top ? SOUTH_TOP : SOUTH_BOTTOM;
             case EAST  -> top ? EAST_TOP  : EAST_BOTTOM;
@@ -128,57 +132,57 @@ public class FramedHalfSlabBlock extends AbstractFramedEntityBlock implements Wa
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return shapeFor(state);
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return shapeFor(state);
     }
 
     @Override
-    public VoxelShape getRaycastShape(BlockState state, BlockView world, BlockPos pos) {
+    public VoxelShape getInteractionShape(BlockState state, BlockGetter world, BlockPos pos) {
         return shapeFor(state);
     }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(Properties.WATERLOGGED)
-                ? Fluids.WATER.getStill(false)
+        return state.getValue(BlockStateProperties.WATERLOGGED)
+                ? Fluids.WATER.getSource(false)
                 : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(
+    protected BlockState updateShape(
             BlockState state,
-            WorldView world,
-            ScheduledTickView tickView,
+            LevelReader world,
+            ScheduledTickAccess tickView,
             BlockPos pos,
             Direction direction,
             BlockPos neighborPos,
             BlockState neighborState,
-            Random random
+            RandomSource random
     ) {
-        if (state.get(Properties.WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
-        builder.add(HAS_CAMO, Properties.WATERLOGGED, FACING, HALF);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(HAS_CAMO, BlockStateProperties.WATERLOGGED, FACING, HALF);
     }
 
     @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> getCodec() {
+    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
         return FramedUseHandler.handleUse(state, world, pos, player, hit, be);
     }
