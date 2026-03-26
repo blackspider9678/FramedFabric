@@ -4,6 +4,7 @@ import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.block.*;
 import com.spider.framedfabric.block.custom.*;
 import com.spider.framedfabric.block.FramedLadderBlock;
+import com.spider.framedfabric.blockentity.FramedProperties;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Registry;
@@ -27,6 +28,7 @@ public final class ModBlocks {
             BlockBehaviour.Properties.of()
                     .strength(1.5f)
                     .sound(SoundType.WOOD)
+                    .lightLevel(FramedProperties::lightLevel)
                     .noOcclusion()
             ;
 
@@ -101,7 +103,9 @@ public final class ModBlocks {
     //Custom Blocks
     public static final Block FRAMED_SLOPE =
             register("framed_slope", FramedSlopeBlock::new,
-                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion());
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                            .lightLevel(FramedProperties::lightLevel)
+                            .noOcclusion());
 
     public static final Block FRAMED_CORNER_POST =
             register("framed_corner_post", FramedCornerPostBlock::new, BASE);

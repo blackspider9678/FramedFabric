@@ -50,7 +50,7 @@ public class FramedPressurePlateBlock extends PressurePlateBlock implements Enti
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HAS_CAMO, ROT);
+        builder.add(HAS_CAMO, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class FramedDoorBlock extends DoorBlock implements EntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HAS_CAMO);
+        builder.add(HAS_CAMO, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
     }
 
     /**

@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.*;
 
 public final class FramedCamoLogic {
     private FramedCamoLogic() {}
@@ -34,8 +35,12 @@ public final class FramedCamoLogic {
 
         // EMPTY: accept BlockItem to apply camo
         if (held.getItem() instanceof BlockItem bi) {
+            BlockState camo = bi.getBlock().defaultBlockState();
+            if (isUnsupportedCamo(camo)) {
+                return InteractionResult.PASS;
+            }
+
             if (!world.isClientSide()) {
-                BlockState camo = bi.getBlock().defaultBlockState();
                 be.setCamoPart(partIndex, camo);
                 if (!player.isCreative()) held.shrink(1);
             }
@@ -59,5 +64,24 @@ public final class FramedCamoLogic {
         if (!player.getInventory().add(stack)) {
             player.drop(stack, false);
         }
+    }
+
+    private static boolean isUnsupportedCamo(BlockState state) {
+        Block block = state.getBlock();
+        return block instanceof VegetationBlock
+                || block instanceof VineBlock
+                || block instanceof GlowLichenBlock
+                || block instanceof BambooSaplingBlock
+                || block instanceof BambooStalkBlock
+                || block instanceof CactusBlock
+                || block instanceof ChorusFlowerBlock
+                || block instanceof ChorusPlantBlock
+                || block instanceof KelpBlock
+                || block instanceof KelpPlantBlock
+                || block instanceof SeaPickleBlock
+                || block instanceof SeagrassBlock
+                || block instanceof SugarCaneBlock
+                || block instanceof TallSeagrassBlock
+                || block instanceof BaseCoralPlantTypeBlock;
     }
 }

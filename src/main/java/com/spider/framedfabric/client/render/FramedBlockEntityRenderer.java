@@ -3,7 +3,6 @@ package com.spider.framedfabric.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.block.FramedMiniCubeBlock;
 import com.spider.framedfabric.block.custom.FramedCheckeredBlock;
 import com.spider.framedfabric.block.custom.FramedCheckeredSlabBlock;
@@ -63,14 +62,11 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class FramedBlockEntityRenderer implements BlockEntityRenderer<FramedBlockEntity, FramedBERenderState> {
     private static final int TINT_BASE = 32;
     private static final float GEOMETRY_EPSILON = 1.0E-4F;
     private static final float CAMO_OUTSET_SCALE = 1.0F;
-    private static final Set<String> DEBUG_RENDER_KEYS = ConcurrentHashMap.newKeySet();
 
     public FramedBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
@@ -259,7 +255,6 @@ public final class FramedBlockEntityRenderer implements BlockEntityRenderer<Fram
             Map<Direction, FaceInfo> faceInfo = pickFaceInfo(camoModel, RandomSource.create(pos.asLong() ^ i));
             TextureAtlasSprite fallbackSprite = camoModel.particleMaterial().sprite();
             partRenders[i] = new PartRender(be.getCamoRotPart(i), camo, faceInfo, fallbackSprite);
-            debugPartRender(pos, i, camo, faceInfo, fallbackSprite);
         }
 
         return partRenders;
@@ -350,7 +345,11 @@ public final class FramedBlockEntityRenderer implements BlockEntityRenderer<Fram
                 return quad;
             }
 
-            long[] packedUvs = remapUvs(positions, outFace, quad.materialInfo().sprite(), 0, state.getBlock() instanceof FramedMiniCubeBlock);
+            Vector3fc[] uvPositions = positions;
+            if (state.getBlock() instanceof FramedMiniCubeBlock && (outFace == Direction.UP || outFace == Direction.DOWN)) {
+                uvPositions = originalPositions;
+            }
+            long[] packedUvs = remapUvs(uvPositions, outFace, quad.materialInfo().sprite(), 0, state.getBlock() instanceof FramedMiniCubeBlock);
 
             return new BakedQuad(
                     positions[0],
@@ -375,7 +374,6 @@ public final class FramedBlockEntityRenderer implements BlockEntityRenderer<Fram
             uvPositions = originalPositions;
         }
         long[] packedUvs = remapUvs(uvPositions, outFace, targetSprite, faceMap.uvTurnsCW(), state.getBlock() instanceof FramedMiniCubeBlock);
-        debugQuadMapping(pos, partIndex, part.camoState(), faceMap.srcFace(), outFace, targetSprite, tintLayer, packedUvs);
 
         int packedTint = -1;
         if (tintLayer >= 0) {
@@ -951,63 +949,6 @@ public final class FramedBlockEntityRenderer implements BlockEntityRenderer<Fram
         }
 
         return false;
-    }
-
-    private static void debugPartRender(BlockPos pos, int partIndex, BlockState camo, Map<Direction, FaceInfo> faceInfo, TextureAtlasSprite fallbackSprite) {
-        String key = "part:" + pos + ":" + partIndex + ":" + camo;
-        if (!DEBUG_RENDER_KEYS.add(key)) {
-            return;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("[FramedFabric] Camo part at ").append(pos)
-                .append(" part ").append(partIndex)
-                .append(" state=").append(camo)
-                .append(" fallback=").append(fallbackSprite.contents().name());
-
-        for (Direction direction : Direction.values()) {
-            FaceInfo info = faceInfo.get(direction);
-            if (info != null) {
-                builder.append(" ").append(direction.getName())
-                        .append("=")
-                        .append(info.sprite().contents().name())
-                        .append("#")
-                        .append(info.tintIndex());
-            }
-        }
-
-        FramedFabric.LOGGER.info(builder.toString());
-    }
-
-    private static void debugQuadMapping(
-            BlockPos pos,
-            int partIndex,
-            BlockState camo,
-            Direction srcFace,
-            Direction outFace,
-            TextureAtlasSprite sprite,
-            int tintLayer,
-            long[] packedUvs
-    ) {
-        String key = "quad:" + pos + ":" + partIndex + ":" + camo + ":" + srcFace + ":" + outFace;
-        if (!DEBUG_RENDER_KEYS.add(key)) {
-            return;
-        }
-
-        FramedFabric.LOGGER.info(
-                "[FramedFabric] Camo quad at {} part {} state={} srcFace={} outFace={} sprite={} tint={} uv0=({}, {}) uv2=({}, {})",
-                pos,
-                partIndex,
-                camo,
-                srcFace,
-                outFace,
-                sprite.contents().name(),
-                tintLayer,
-                UVPair.unpackU(packedUvs[0]),
-                UVPair.unpackV(packedUvs[0]),
-                UVPair.unpackU(packedUvs[2]),
-                UVPair.unpackV(packedUvs[2])
-        );
     }
 
     private record CamoRenderData(MovingBlockRenderState view, List<BlockStateModelPart> parts, boolean hasTranslucency, int[] tints) {}

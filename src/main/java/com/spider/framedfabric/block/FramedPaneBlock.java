@@ -49,7 +49,7 @@ public class FramedPaneBlock extends IronBarsBlock implements net.minecraft.worl
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HAS_CAMO);
+        builder.add(HAS_CAMO, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
     }
 
     @Override

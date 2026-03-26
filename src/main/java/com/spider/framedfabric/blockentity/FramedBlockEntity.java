@@ -82,7 +82,7 @@ public final class FramedBlockEntity extends BlockEntity {
         partCamo[index] = camo;
         hasPart[index] = true;
 
-        syncHasCamoProp();
+        syncFramedStateProps();
         syncAndRerender();
     }
 
@@ -93,7 +93,7 @@ public final class FramedBlockEntity extends BlockEntity {
         partCamo[index] = Blocks.OAK_PLANKS.defaultBlockState();
         partRot[index] = 1;
 
-        syncHasCamoProp();
+        syncFramedStateProps();
         syncAndRerender();
     }
 
@@ -113,15 +113,25 @@ public final class FramedBlockEntity extends BlockEntity {
         setCamoRotPart(index, (getCamoRotPart(index) >= 6) ? 1 : (getCamoRotPart(index) + 1));
     }
 
-    private void syncHasCamoProp() {
+    private void syncFramedStateProps() {
         if (!(level instanceof ServerLevel sw)) return;
 
         BlockState s = getBlockState();
-        boolean value = hasAnyCamo();
-        BlockState updated = FramedProperties.withCamo(s, value);
+        BlockState updated = FramedProperties.withCamo(s, hasAnyCamo());
+        updated = FramedProperties.withCamoLight(updated, getMaxCamoLight());
         if (updated == s) return;
 
         sw.setBlock(worldPosition, updated, 3);
+    }
+
+    private int getMaxCamoLight() {
+        int light = 0;
+        for (int i = 0; i < MAX_CAMO_PARTS; i++) {
+            if (!hasPart[i]) continue;
+            light = Math.max(light, partCamo[i].getLightEmission());
+            if (light >= 15) return 15;
+        }
+        return light;
     }
 
     // ------------------------------------------------------------
@@ -224,7 +234,7 @@ public final class FramedBlockEntity extends BlockEntity {
 
         // server: keep HAS_CAMO in sync
         if (level instanceof ServerLevel) {
-            syncHasCamoProp();
+            syncFramedStateProps();
         }
 
         // ✅ client: rerender if ANY part OR plant changed

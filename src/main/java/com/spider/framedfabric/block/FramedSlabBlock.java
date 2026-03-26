@@ -49,7 +49,7 @@ public class FramedSlabBlock extends SlabBlock implements EntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HAS_CAMO, ROT);
+        builder.add(HAS_CAMO, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
     }
 
     @Override
@@ -84,6 +84,7 @@ public class FramedSlabBlock extends SlabBlock implements EntityBlock {
         if (existing.is(this)) {
             boolean has = existing.hasProperty(HAS_CAMO) && existing.getValue(HAS_CAMO);
             int rot = existing.hasProperty(ROT) ? existing.getValue(ROT) : 1;
+            int camoLight = com.spider.framedfabric.blockentity.FramedProperties.lightLevel(existing);
 
             // Prefer BE truth if present (handles multi-part camo properly)
             if (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) {
@@ -91,6 +92,7 @@ public class FramedSlabBlock extends SlabBlock implements EntityBlock {
             }
 
             placed = placed.setValue(HAS_CAMO, has).setValue(ROT, rot);
+            placed = com.spider.framedfabric.blockentity.FramedProperties.withCamoLight(placed, camoLight);
         }
 
         return placed;

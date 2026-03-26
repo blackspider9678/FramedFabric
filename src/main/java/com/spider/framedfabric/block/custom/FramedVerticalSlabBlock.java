@@ -79,7 +79,7 @@ public class FramedVerticalSlabBlock extends Block implements EntityBlock, Simpl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{HAS_CAMO, TYPE, FACING, WATERLOGGED, ROT});
+        builder.add(new Property[]{HAS_CAMO, TYPE, FACING, WATERLOGGED, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT});
     }
 
     @Override
@@ -133,12 +133,14 @@ public class FramedVerticalSlabBlock extends Block implements EntityBlock, Simpl
             // Preserve HAS_CAMO + ROT (same as you already do)
             boolean has = existing.hasProperty(HAS_CAMO) && existing.getValue(HAS_CAMO);
             int rot = existing.hasProperty(ROT) ? existing.getValue(ROT) : 1;
+            int camoLight = com.spider.framedfabric.blockentity.FramedProperties.lightLevel(existing);
 
             if (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) {
                 has = fbe.hasAnyCamo();
             }
 
             placed = placed.setValue(HAS_CAMO, has).setValue(ROT, rot);
+            placed = com.spider.framedfabric.blockentity.FramedProperties.withCamoLight(placed, camoLight);
 
             // Keep original facing after merging
             if (existing.hasProperty(FACING)) {

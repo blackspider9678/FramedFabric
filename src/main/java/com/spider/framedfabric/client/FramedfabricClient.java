@@ -1,6 +1,5 @@
 package com.spider.framedfabric.client;
 
-import com.spider.framedfabric.FramedFabric;
 import com.spider.framedfabric.client.render.FramedBlockEntityRenderer;
 import com.spider.framedfabric.client.screen.WoodWorkbenchScreen;
 import com.spider.framedfabric.net.payload.WoodWorkbenchRecipesPayload;
@@ -14,8 +13,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 public class FramedfabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        FramedFabric.LOGGER.info("[FramedFabric] Client init");
-
         BlockEntityRendererRegistry.register(ModBlockEntities.FRAMED, FramedBlockEntityRenderer::new);
         MenuScreens.register(ModScreenHandlers.WOOD_WORKBENCH, WoodWorkbenchScreen::new);
 
@@ -25,7 +22,6 @@ public class FramedfabricClient implements ClientModInitializer {
                 if (!(context.client().player.containerMenu instanceof com.spider.framedfabric.screen.WoodWorkbenchScreenHandler handler)) return;
                 if (handler.containerId != payload.syncId()) return;
 
-                System.out.println("CLIENT received payload recipes: " + payload.recipes().size() + " for syncId " + payload.syncId());
                 handler.setClientDisplayRecipes(payload.recipes());
             });
         });

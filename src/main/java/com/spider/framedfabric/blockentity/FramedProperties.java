@@ -14,6 +14,7 @@ public final class FramedProperties {
 
     // ✅ one shared instance used by all blocks + BE
     public static final BooleanProperty HAS_CAMO = BooleanProperty.create("has_camo");
+    public static final IntegerProperty CAMO_LIGHT = IntegerProperty.create("camo_light", 0, 15);
 
     public static boolean hasCamo(BlockState state) {
         BooleanProperty property = camoProperty(state);
@@ -29,6 +30,21 @@ public final class FramedProperties {
         return state.setValue(property, value);
     }
 
+    public static int lightLevel(BlockState state) {
+        IntegerProperty property = camoLightProperty(state);
+        return property == null ? 0 : state.getValue(property);
+    }
+
+    public static BlockState withCamoLight(BlockState state, int value) {
+        IntegerProperty property = camoLightProperty(state);
+        int clamped = clampLightLevel(value);
+        if (property == null || state.getValue(property) == clamped) {
+            return state;
+        }
+
+        return state.setValue(property, clamped);
+    }
+
     public static @Nullable BooleanProperty camoProperty(BlockState state) {
         for (Property<?> property : state.getProperties()) {
             if (property instanceof BooleanProperty booleanProperty && "has_camo".equals(booleanProperty.getName())) {
@@ -37,5 +53,19 @@ public final class FramedProperties {
         }
 
         return null;
+    }
+
+    public static @Nullable IntegerProperty camoLightProperty(BlockState state) {
+        for (Property<?> property : state.getProperties()) {
+            if (property instanceof IntegerProperty integerProperty && "camo_light".equals(integerProperty.getName())) {
+                return integerProperty;
+            }
+        }
+
+        return null;
+    }
+
+    private static int clampLightLevel(int value) {
+        return Math.max(0, Math.min(15, value));
     }
 }

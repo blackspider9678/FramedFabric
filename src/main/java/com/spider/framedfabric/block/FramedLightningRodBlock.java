@@ -43,14 +43,6 @@ public class FramedLightningRodBlock extends LightningRodBlock implements Entity
     }
 
     @Override
-    public void onLightningStrike(BlockState state, Level world, BlockPos pos) {
-        // TEMP DEBUG
-        System.out.println("[FramedFabric] FramedLightningRodBlock#setPowered at " + pos);
-
-        super.onLightningStrike(state, world, pos);
-    }
-
-    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MapCodec<LightningRodBlock> codec() {
         return (MapCodec) CODEC;
@@ -59,7 +51,7 @@ public class FramedLightningRodBlock extends LightningRodBlock implements Entity
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder); // adds FACING, POWERED, WATERLOGGED
-        builder.add(HAS_CAMO, ROT);
+        builder.add(HAS_CAMO, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT);
     }
 
     @Override

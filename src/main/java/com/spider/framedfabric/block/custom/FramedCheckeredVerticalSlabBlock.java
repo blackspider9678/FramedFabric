@@ -79,7 +79,7 @@ public class FramedCheckeredVerticalSlabBlock extends Block implements EntityBlo
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{HAS_CAMO, TYPE, FACING, WATERLOGGED, ROT});
+        builder.add(new Property[]{HAS_CAMO, TYPE, FACING, WATERLOGGED, ROT, com.spider.framedfabric.blockentity.FramedProperties.CAMO_LIGHT});
     }
 
     @Override
@@ -131,12 +131,14 @@ public class FramedCheckeredVerticalSlabBlock extends Block implements EntityBlo
 
             boolean has = existing.hasProperty(HAS_CAMO) && existing.getValue(HAS_CAMO);
             int rot = existing.hasProperty(ROT) ? existing.getValue(ROT) : 1;
+            int camoLight = com.spider.framedfabric.blockentity.FramedProperties.lightLevel(existing);
 
             if (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) {
                 has = fbe.hasAnyCamo();
             }
 
             placed = placed.setValue(HAS_CAMO, has).setValue(ROT, rot);
+            placed = com.spider.framedfabric.blockentity.FramedProperties.withCamoLight(placed, camoLight);
 
             if (existing.hasProperty(FACING)) placed = placed.setValue(FACING, existing.getValue(FACING));
             return placed;

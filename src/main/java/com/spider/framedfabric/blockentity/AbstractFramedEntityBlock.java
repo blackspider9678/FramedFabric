@@ -31,7 +31,7 @@ public abstract class AbstractFramedEntityBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ROT);
+        builder.add(ROT, FramedProperties.CAMO_LIGHT);
     }
 
 
