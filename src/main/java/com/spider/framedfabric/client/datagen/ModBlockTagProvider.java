@@ -28,7 +28,8 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
     protected void configure(RegistryWrapper.WrapperLookup arg) {
 
         valueLookupBuilder(BlockTags.AXE_MINEABLE)
-                .add(ModBlocks.FRAMED_ALL);
+                .add(ModBlocks.FRAMED_ALL)
+                .add(ModBlocks.WOOD_WORKBENCH);
 
         valueLookupBuilder(FRAMED)
                 .add(ModBlocks.FRAMED_ALL);

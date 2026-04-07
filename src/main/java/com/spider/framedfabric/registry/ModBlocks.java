@@ -139,18 +139,26 @@ public final class ModBlocks {
                     AbstractBlock.Settings.create()
                             .strength(2.5f)
                             .sounds(BlockSoundGroup.WOOD)
-                            .nonOpaque());
+                            .nonOpaque(),
+                    false);
 
     public static void init() {}
 
     private static Block register(String path, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings) {
+        return register(path, factory, settings, true);
+    }
+
+    private static Block register(String path, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings, boolean framed) {
         Identifier id = Identifier.of(FramedFabric.MOD_ID, path);
         RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
 
         Block block = Blocks.register(key, factory, settings);
         Items.register(block);
 
-        FRAMED_ALL.add(block); // <-- auto add here
+        if (framed) {
+            FRAMED_ALL.add(block);
+        }
+
         return block;
     }
 }

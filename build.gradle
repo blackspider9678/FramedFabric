@@ -16,6 +16,19 @@ fabricApi {
     }
 }
 
+loom {
+    runs {
+        // Keep dev launches isolated from user-installed runtime mods in run/mods.
+        client {
+            runDir = "run-dev"
+        }
+
+        server {
+            runDir = "run-dev"
+        }
+    }
+}
+
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
@@ -41,6 +54,7 @@ processResources {
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
     filteringCharset "UTF-8"
+    exclude ".cache/**"
 
     filesMatching("fabric.mod.json") {
         expand "version": project.version,

@@ -10,5 +10,6 @@ public class FramedFabricDataGen implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack pack = generator.createPack();
 
         pack.addProvider(ModBlockTagProvider::new);
+        pack.addProvider(ModBlockLootTableProvider::new);
     }
 }
