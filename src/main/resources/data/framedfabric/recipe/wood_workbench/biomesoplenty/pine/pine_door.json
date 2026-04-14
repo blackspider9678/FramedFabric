@@ -1,0 +1,17 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomesoplenty"
+      ]
+    }
+  ],
+  "ingredient": "biomesoplenty:pine_planks",
+  "input_count": 1,
+  "result": {
+    "id": "biomesoplenty:pine_door",
+    "count": 3
+  }
+}

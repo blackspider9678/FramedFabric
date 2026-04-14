@@ -1,0 +1,17 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:aspen_slab",
+  "input_count": 2,
+  "result": {
+    "id": "biomeswevegone:aspen_planks",
+    "count": 1
+  }
+}
