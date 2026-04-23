@@ -13,9 +13,6 @@
     "client": [
       "com.spider.framedfabric.client.FramedfabricClient"
     ],
-    "jei_mod_plugin": [
-      "com.spider.framedfabric.client.jei.FramedFabricJeiPlugin"
-    ],
     "main": [
       "com.spider.framedfabric.FramedFabric"
     ],

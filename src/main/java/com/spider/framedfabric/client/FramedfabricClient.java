@@ -1,24 +1,19 @@
 package com.spider.framedfabric.client;
 
 import com.spider.framedfabric.FramedFabric;
-import com.spider.framedfabric.client.jei.FramedFabricJeiPlugin;
 import com.spider.framedfabric.net.payload.WoodWorkbenchRecipesPayload;
-import com.spider.framedfabric.net.payload.WoodWorkbenchJeiRecipesPayload;
 import com.spider.framedfabric.registry.ModBlockEntities;
 import com.spider.framedfabric.registry.ModBlocks;
 import com.spider.framedfabric.client.render.FramedBlockEntityRenderer;
 import com.spider.framedfabric.client.screen.*;
 import com.spider.framedfabric.registry.ModScreenHandlers;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayers;
-
-import java.util.List;
 
 public class FramedfabricClient implements ClientModInitializer {
     @Override
@@ -40,21 +35,6 @@ public class FramedfabricClient implements ClientModInitializer {
                 handler.setClientDisplayRecipes(payload.recipes());
             });
         });
-
-        ClientPlayNetworking.registerGlobalReceiver(WoodWorkbenchJeiRecipesPayload.ID, (payload, context) ->
-                context.client().execute(() ->
-                        FramedFabricJeiPlugin.updateSyncedRecipes(
-                                payload.recipes()
-                                        .stream()
-                                        .map(entry -> new com.spider.framedfabric.client.jei.WoodWorkbenchJeiRecipeCategory.DisplayRecipe(entry.id(), entry.recipe()))
-                                        .toList()
-                        )
-                )
-        );
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
-                FramedFabricJeiPlugin.updateSyncedRecipes(List.of())
-        );
 
         FramedModelPlugin.init();
         FramedColorProviders.init();
