@@ -4,105 +4,105 @@ import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
-public class FramedMediumPostBlock extends AbstractFramedEntityBlock implements Waterloggable {
+public class FramedMediumPostBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final MapCodec<FramedMediumPostBlock> CODEC = createCodec(FramedMediumPostBlock::new);
+    public static final MapCodec<FramedMediumPostBlock> CODEC = simpleCodec(FramedMediumPostBlock::new);
 
-    public static final EnumProperty<Direction.Axis> AXIS = Properties.AXIS;
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
     // 10x16x10 centered: [3..13]
-    private static final VoxelShape SHAPE_Y = Block.createCuboidShape(3, 0, 3, 13, 16, 13);
-    private static final VoxelShape SHAPE_X = Block.createCuboidShape(0, 3, 3, 16, 13, 13);
-    private static final VoxelShape SHAPE_Z = Block.createCuboidShape(3, 3, 0, 13, 13, 16);
+    private static final VoxelShape SHAPE_Y = Block.box(3, 0, 3, 13, 16, 13);
+    private static final VoxelShape SHAPE_X = Block.box(0, 3, 3, 16, 13, 13);
+    private static final VoxelShape SHAPE_Z = Block.box(3, 3, 0, 13, 13, 16);
 
-    public FramedMediumPostBlock(Settings settings) {
+    public FramedMediumPostBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(
-                this.getStateManager().getDefaultState()
-                        .with(ROT, 1)
-                        .with(HAS_CAMO, false)
-                        .with(Properties.WATERLOGGED, false)
-                        .with(AXIS, Direction.Axis.Y)
+        this.registerDefaultState(
+                this.getStateDefinition().any()
+                        .setValue(ROT, 1)
+                        .setValue(HAS_CAMO, false)
+                        .setValue(BlockStateProperties.WATERLOGGED, false)
+                        .setValue(AXIS, Direction.Axis.Y)
         );
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
-        builder.add(HAS_CAMO, Properties.WATERLOGGED, AXIS);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(HAS_CAMO, BlockStateProperties.WATERLOGGED, AXIS);
     }
 
     @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> getCodec() {
+    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockState state = super.getPlacementState(ctx);
-        if (state == null) state = this.getDefaultState();
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        BlockState state = super.getStateForPlacement(ctx);
+        if (state == null) state = this.defaultBlockState();
 
-        BlockPos pos = ctx.getBlockPos();
-        boolean waterlogged = ctx.getWorld().getFluidState(pos).getFluid() == Fluids.WATER;
-        Direction.Axis axis = ctx.getSide().getAxis();
+        BlockPos pos = ctx.getClickedPos();
+        boolean waterlogged = ctx.getLevel().getFluidState(pos).getType() == Fluids.WATER;
+        Direction.Axis axis = ctx.getClickedFace().getAxis();
 
-        return state.with(Properties.WATERLOGGED, waterlogged).with(AXIS, axis);
+        return state.setValue(BlockStateProperties.WATERLOGGED, waterlogged).setValue(AXIS, axis);
     }
 
     private static VoxelShape shapeFor(BlockState state) {
-        return switch (state.get(AXIS)) {
+        return switch (state.getValue(AXIS)) {
             case X -> SHAPE_X;
             case Z -> SHAPE_Z;
             case Y -> SHAPE_Y;
         };
     }
 
-    @Override public VoxelShape getOutlineShape(BlockState s, BlockView w, BlockPos p, ShapeContext c) { return shapeFor(s); }
-    @Override public VoxelShape getCollisionShape(BlockState s, BlockView w, BlockPos p, ShapeContext c) { return shapeFor(s); }
-    @Override public VoxelShape getRaycastShape(BlockState s, BlockView w, BlockPos p) { return shapeFor(s); }
+    @Override public VoxelShape getShape(BlockState s, BlockGetter w, BlockPos p, CollisionContext c) { return shapeFor(s); }
+    @Override public VoxelShape getCollisionShape(BlockState s, BlockGetter w, BlockPos p, CollisionContext c) { return shapeFor(s); }
+    @Override public VoxelShape getInteractionShape(BlockState s, BlockGetter w, BlockPos p) { return shapeFor(s); }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(Properties.WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+        return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(
-            BlockState state, WorldView world, ScheduledTickView tickView,
-            BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random
+    protected BlockState updateShape(
+            BlockState state, LevelReader world, ScheduledTickAccess tickView,
+            BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random
     ) {
-        if (state.get(Properties.WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         FramedBlockEntity be = (world.getBlockEntity(pos) instanceof FramedBlockEntity fbe) ? fbe : null;
         return FramedUseHandler.handleUse(state, world, pos, player, hit, be);
     }

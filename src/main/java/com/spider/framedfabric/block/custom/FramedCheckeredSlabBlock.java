@@ -2,80 +2,80 @@ package com.spider.framedfabric.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.block.enums.SlabType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
-public class FramedCheckeredSlabBlock extends AbstractFramedEntityBlock implements Waterloggable {
+public class FramedCheckeredSlabBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final MapCodec<FramedCheckeredSlabBlock> CODEC = createCodec(FramedCheckeredSlabBlock::new);
+    public static final MapCodec<FramedCheckeredSlabBlock> CODEC = simpleCodec(FramedCheckeredSlabBlock::new);
 
     public static final EnumProperty<SlabType> TYPE = SlabBlock.TYPE;
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private static final VoxelShape SHAPE_BOTTOM = Block.createCuboidShape(0, 0, 0, 16, 8, 16);
-    private static final VoxelShape SHAPE_TOP    = Block.createCuboidShape(0, 8, 0, 16, 16, 16);
+    private static final VoxelShape SHAPE_BOTTOM = Block.box(0, 0, 0, 16, 8, 16);
+    private static final VoxelShape SHAPE_TOP    = Block.box(0, 8, 0, 16, 16, 16);
 
-    public FramedCheckeredSlabBlock(Settings settings) {
+    public FramedCheckeredSlabBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(
-                this.getStateManager().getDefaultState()
-                        .with(ROT, 1)
-                        .with(HAS_CAMO, false)
-                        .with(WATERLOGGED, false)
-                        .with(TYPE, SlabType.BOTTOM)
+        this.registerDefaultState(
+                this.getStateDefinition().any()
+                        .setValue(ROT, 1)
+                        .setValue(HAS_CAMO, false)
+                        .setValue(WATERLOGGED, false)
+                        .setValue(TYPE, SlabType.BOTTOM)
         );
     }
 
     @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> getCodec() {
+    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(HAS_CAMO, WATERLOGGED, TYPE);
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockPos pos = ctx.getBlockPos();
-        World world = ctx.getWorld();
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        BlockPos pos = ctx.getClickedPos();
+        Level world = ctx.getLevel();
         BlockState existing = world.getBlockState(pos);
 
         // Merge into DOUBLE if placing onto existing checkered slab
-        if (existing.isOf(this)) {
-            return existing.with(TYPE, SlabType.DOUBLE).with(WATERLOGGED, false);
+        if (existing.is(this)) {
+            return existing.setValue(TYPE, SlabType.DOUBLE).setValue(WATERLOGGED, false);
         }
 
         FluidState fluid = world.getFluidState(pos);
-        boolean water = fluid.getFluid() == Fluids.WATER;
+        boolean water = fluid.getType() == Fluids.WATER;
 
-        Direction side = ctx.getSide();
-        double ly = ctx.getHitPos().y - pos.getY(); // 0..1
+        Direction side = ctx.getClickedFace();
+        double ly = ctx.getClickLocation().y - pos.getY(); // 0..1
 
         SlabType type;
         if (side == Direction.DOWN) {
@@ -87,37 +87,37 @@ public class FramedCheckeredSlabBlock extends AbstractFramedEntityBlock implemen
             type = (ly > 0.5) ? SlabType.TOP : SlabType.BOTTOM;
         }
 
-        return this.getDefaultState()
-                .with(WATERLOGGED, water)
-                .with(TYPE, type);
+        return this.defaultBlockState()
+                .setValue(WATERLOGGED, water)
+                .setValue(TYPE, type);
     }
 
     @Override
-    protected boolean canReplace(BlockState state, ItemPlacementContext ctx) {
-        if (state.get(TYPE) == SlabType.DOUBLE) return false;
-        ItemStack stack = ctx.getStack();
-        return stack.isOf(this.asItem());
+    protected boolean canBeReplaced(BlockState state, BlockPlaceContext ctx) {
+        if (state.getValue(TYPE) == SlabType.DOUBLE) return false;
+        ItemStack stack = ctx.getItemInHand();
+        return stack.is(this.asItem());
     }
 
     // Shapes (optional but nice)
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return switch (state.get(TYPE)) {
-            case DOUBLE -> VoxelShapes.fullCube();
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(TYPE)) {
+            case DOUBLE -> Shapes.block();
             case TOP    -> SHAPE_TOP;
             default     -> SHAPE_BOTTOM;
         };
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return getOutlineShape(state, world, pos, context);
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return getShape(state, world, pos, context);
     }
 
     @Override
-    public VoxelShape getRaycastShape(BlockState state, BlockView world, BlockPos pos) {
-        return switch (state.get(TYPE)) {
-            case DOUBLE -> VoxelShapes.fullCube();
+    public VoxelShape getInteractionShape(BlockState state, BlockGetter world, BlockPos pos) {
+        return switch (state.getValue(TYPE)) {
+            case DOUBLE -> Shapes.block();
             case TOP    -> SHAPE_TOP;
             default     -> SHAPE_BOTTOM;
         };
@@ -125,11 +125,11 @@ public class FramedCheckeredSlabBlock extends AbstractFramedEntityBlock implemen
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         var be = (world.getBlockEntity(pos) instanceof com.spider.framedfabric.blockentity.FramedBlockEntity fbe) ? fbe : null;
         return com.spider.framedfabric.blockentity.FramedUseHandler.handleUse(state, world, pos, player, hit, be);
     }

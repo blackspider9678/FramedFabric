@@ -1,9 +1,8 @@
 package com.spider.framedfabric.screen;
 
-import net.minecraft.item.ItemStack;
-
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import net.minecraft.world.item.ItemStack;
 
 public record WorkbenchOption(
         String id,

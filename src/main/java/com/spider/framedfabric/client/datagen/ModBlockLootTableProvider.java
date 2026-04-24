@@ -4,45 +4,45 @@ import com.spider.framedfabric.block.custom.FramedCheckeredVerticalSlabBlock;
 import com.spider.framedfabric.block.custom.FramedVerticalSlabBlock;
 import com.spider.framedfabric.block.enums.VerticalSlabType;
 import com.spider.framedfabric.registry.ModBlocks;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
-import net.minecraft.block.Block;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.condition.BlockStatePropertyLootCondition;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.function.SetCountLootFunction;
-import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
-import net.minecraft.predicate.StatePredicate;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.StringIdentifiable;
-
 import java.util.concurrent.CompletableFuture;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-public class ModBlockLootTableProvider extends FabricBlockLootTableProvider {
-
-    public ModBlockLootTableProvider(FabricDataOutput output,
-                                     CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+public class ModBlockLootTableProvider extends FabricBlockLootSubProvider {
+    public ModBlockLootTableProvider(
+            FabricPackOutput output,
+            CompletableFuture<HolderLookup.Provider> registriesFuture
+    ) {
         super(output, registriesFuture);
     }
 
     @Override
     public void generate() {
         for (Block block : ModBlocks.FRAMED_ALL) {
-            addDrop(block, this::createFramedDrop);
+            add(block, this::createFramedDrop);
         }
 
-        addDrop(ModBlocks.WOOD_WORKBENCH);
+        dropSelf(ModBlocks.WOOD_WORKBENCH);
     }
 
     private LootTable.Builder createFramedDrop(Block block) {
         if (block == ModBlocks.FRAMED_DOOR) {
-            return doorDrops(block);
+            return createDoorTable(block);
         }
 
         if (block == ModBlocks.FRAMED_SLAB || block == ModBlocks.FRAMED_CHECKERED_SLAB) {
-            return slabDrops(block);
+            return createSlabItemTable(block);
         }
 
         if (block == ModBlocks.FRAMED_VERTICAL_SLAB) {
@@ -53,22 +53,22 @@ public class ModBlockLootTableProvider extends FabricBlockLootTableProvider {
             return doubledDropOnProperty(block, FramedCheckeredVerticalSlabBlock.TYPE, VerticalSlabType.DOUBLE);
         }
 
-        return drops(block);
+        return createSingleItemTable(block);
     }
 
-    private <T extends Comparable<T> & StringIdentifiable> LootTable.Builder doubledDropOnProperty(
+    private <T extends Comparable<T> & StringRepresentable> LootTable.Builder doubledDropOnProperty(
             Block block,
             Property<T> property,
             T doubledValue
     ) {
-        return LootTable.builder()
-                .pool(LootPool.builder()
-                        .rolls(ConstantLootNumberProvider.create(1.0F))
-                        .with(applyExplosionDecay(block,
-                                ItemEntry.builder(block)
-                                        .apply(SetCountLootFunction.builder(ConstantLootNumberProvider.create(2.0F))
-                                                .conditionally(BlockStatePropertyLootCondition.builder(block)
-                                                        .properties(StatePredicate.Builder.create()
-                                                                .exactMatch(property, doubledValue)))))));
+        return LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(applyExplosionDecay(block,
+                                LootItem.lootTableItem(block)
+                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F))
+                                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                                        .setProperties(StatePropertiesPredicate.Builder.properties()
+                                                                .hasProperty(property, doubledValue)))))));
     }
 }

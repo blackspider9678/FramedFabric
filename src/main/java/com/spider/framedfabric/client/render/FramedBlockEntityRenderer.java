@@ -1,24 +1,21 @@
 package com.spider.framedfabric.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.registry.ModBlocks;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.command.ModelCommandRenderer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public final class FramedBlockEntityRenderer implements BlockEntityRenderer<FramedBlockEntity, FramedBERenderState> {
-
-    public FramedBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {}
+    public FramedBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}
 
     @Override
     public FramedBERenderState createRenderState() {
@@ -26,41 +23,38 @@ public final class FramedBlockEntityRenderer implements BlockEntityRenderer<Fram
     }
 
     @Override
-    public void updateRenderState(FramedBlockEntity be, FramedBERenderState rs, float tickProgress, Vec3d cameraPos, ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay)
-    {
-        BlockState self = be.getCachedState();
-        rs.isFlowerPot = (self.getBlock() == ModBlocks.FRAMED_FLOWER_POT);
+    public void extractRenderState(
+            FramedBlockEntity be,
+            FramedBERenderState rs,
+            float tickProgress,
+            Vec3 cameraPos,
+            ModelFeatureRenderer.CrumblingOverlay crumblingOverlay
+    ) {
+        BlockEntityRenderer.super.extractRenderState(be, rs, tickProgress, cameraPos, crumblingOverlay);
+
+        BlockState self = be.getBlockState();
+        rs.isFlowerPot = self.getBlock() == ModBlocks.FRAMED_FLOWER_POT;
 
         if (!rs.isFlowerPot) {
-            rs.plantState = Blocks.AIR.getDefaultState();
+            rs.plantState = Blocks.AIR.defaultBlockState();
             return;
         }
 
         ItemStack plantStack = be.getPotPlantStack();
-        if (!plantStack.isEmpty() && plantStack.getItem() instanceof BlockItem bi) {
-            rs.plantState = bi.getBlock().getDefaultState();
+        if (!plantStack.isEmpty() && plantStack.getItem() instanceof BlockItem blockItem) {
+            rs.plantState = blockItem.getBlock().defaultBlockState();
         } else {
-            rs.plantState = Blocks.AIR.getDefaultState();
+            rs.plantState = Blocks.AIR.defaultBlockState();
         }
     }
 
     @Override
-    public void render(FramedBERenderState rs, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
-        if (!rs.isFlowerPot || rs.plantState.isAir()) return;
-
-        matrices.push();
-        matrices.translate(0.5, 0.25, 0.5);
-        matrices.scale(0.5f, 0.5f, 0.5f);
-        matrices.translate(-0.5, 0.0, -0.5);
-
-        int light = 0xF000F0;                 // fullbright for now
-        int overlay = OverlayTexture.DEFAULT_UV;
-        int outlineColor = 0;
-
-        // ✅ Let Minecraft decide layers (cutout/translucent/etc)
-        queue.submitBlock(matrices, rs.plantState, light, overlay, outlineColor);
-
-        matrices.pop();
+    public void submit(
+            FramedBERenderState rs,
+            PoseStack matrices,
+            SubmitNodeCollector queue,
+            CameraRenderState cameraState
+    ) {
+        // The flower pot plant render path needs a 26.1.2 submit-node implementation.
     }
-
 }

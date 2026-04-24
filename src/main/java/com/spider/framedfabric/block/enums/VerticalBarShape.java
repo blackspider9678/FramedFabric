@@ -1,8 +1,8 @@
 package com.spider.framedfabric.block.enums;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum VerticalBarShape implements StringIdentifiable {
+public enum VerticalBarShape implements StringRepresentable {
     SINGLE("single"),
     TOP("top"),
     BOTTOM("bottom"),
@@ -15,7 +15,7 @@ public enum VerticalBarShape implements StringIdentifiable {
     }
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return id;
     }
 }

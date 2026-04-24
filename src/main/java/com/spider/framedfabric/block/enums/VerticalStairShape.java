@@ -1,8 +1,8 @@
 package com.spider.framedfabric.block.enums;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum VerticalStairShape implements StringIdentifiable {
+public enum VerticalStairShape implements StringRepresentable {
     STRAIGHT("straight"),
     INNER_LEFT("inner_left"),
     INNER_RIGHT("inner_right"),
@@ -11,5 +11,5 @@ public enum VerticalStairShape implements StringIdentifiable {
 
     private final String id;
     VerticalStairShape(String id) { this.id = id; }
-    @Override public String asString() { return id; }
+    @Override public String getSerializedName() { return id; }
 }

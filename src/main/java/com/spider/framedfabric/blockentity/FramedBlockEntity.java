@@ -1,20 +1,21 @@
 package com.spider.framedfabric.blockentity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public final class FramedBlockEntity extends BlockEntity {
 
@@ -48,7 +49,7 @@ public final class FramedBlockEntity extends BlockEntity {
 
         for (int i = 0; i < MAX_CAMO_PARTS; i++) {
             hasPart[i] = false;
-            partCamo[i] = Blocks.OAK_PLANKS.getDefaultState();
+            partCamo[i] = Blocks.OAK_PLANKS.defaultBlockState();
             partRot[i] = 1; // 1..6
         }
     }
@@ -68,7 +69,7 @@ public final class FramedBlockEntity extends BlockEntity {
     }
 
     public BlockState getCamoPart(int index) {
-        if (index < 0 || index >= MAX_CAMO_PARTS) return Blocks.OAK_PLANKS.getDefaultState();
+        if (index < 0 || index >= MAX_CAMO_PARTS) return Blocks.OAK_PLANKS.defaultBlockState();
         return partCamo[index];
     }
 
@@ -92,7 +93,7 @@ public final class FramedBlockEntity extends BlockEntity {
         if (index < 0 || index >= MAX_CAMO_PARTS) return;
 
         hasPart[index] = false;
-        partCamo[index] = Blocks.OAK_PLANKS.getDefaultState();
+        partCamo[index] = Blocks.OAK_PLANKS.defaultBlockState();
         partRot[index] = 1;
 
         syncHasCamoProp();
@@ -116,15 +117,15 @@ public final class FramedBlockEntity extends BlockEntity {
     }
 
     private void syncHasCamoProp() {
-        if (!(world instanceof ServerWorld sw)) return;
+        if (!(level instanceof ServerLevel sw)) return;
 
-        BlockState s = getCachedState();
-        if (!s.contains(HAS_CAMO)) return;
+        BlockState s = getBlockState();
+        if (!s.hasProperty(HAS_CAMO)) return;
 
         boolean value = hasAnyCamo();
-        if (s.get(HAS_CAMO) == value) return;
+        if (s.getValue(HAS_CAMO) == value) return;
 
-        sw.setBlockState(pos, s.with(HAS_CAMO, value), 3);
+        sw.setBlock(worldPosition, s.setValue(HAS_CAMO, value), 3);
     }
 
     // ------------------------------------------------------------
@@ -147,10 +148,10 @@ public final class FramedBlockEntity extends BlockEntity {
     // ------------------------------------------------------------
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        final boolean isClient = (world != null && world.isClient());
+        final boolean isClient = (level != null && level.isClientSide());
 
         // snapshot for client rerender decision (ALL parts + plant)
         boolean[] oldHas = null;
@@ -166,7 +167,7 @@ public final class FramedBlockEntity extends BlockEntity {
         }
 
         // ---- pot plant ----
-        boolean hasPlant = view.getBoolean(KEY_POT_HAS_PLANT, false);
+        boolean hasPlant = view.getBooleanOr(KEY_POT_HAS_PLANT, false);
         if (hasPlant) {
             potPlant = view.read(KEY_POT_PLANT, ItemStack.CODEC).orElse(ItemStack.EMPTY);
             if (!potPlant.isEmpty() && potPlant.getCount() != 1) {
@@ -183,9 +184,9 @@ public final class FramedBlockEntity extends BlockEntity {
             String camK = KEY_PART_CAMO_PREFIX + i;
             String rotK = KEY_PART_ROT_PREFIX + i;
 
-            boolean has = view.getBoolean(hasK, false);
+            boolean has = view.getBooleanOr(hasK, false);
             BlockState camo = view.read(camK, BlockState.CODEC).orElse(partCamo[i]);
-            int rot = view.getInt(rotK, partRot[i]);
+            int rot = view.getIntOr(rotK, partRot[i]);
 
             if (rot < 1) rot = 1;
             if (rot > 6) rot = 6;
@@ -199,10 +200,10 @@ public final class FramedBlockEntity extends BlockEntity {
 
         // ---- If no new keys were present, migrate legacy ----
         if (!anyNew) {
-            boolean legacyHas = view.getBoolean(KEY_HAS_CAMO, false);
+            boolean legacyHas = view.getBooleanOr(KEY_HAS_CAMO, false);
             BlockState legacyCamo = view.read(KEY_CAMO, BlockState.CODEC).orElse(partCamo[0]);
 
-            int legacyRot = view.getInt(KEY_CAMO_ROT, partRot[0]);
+            int legacyRot = view.getIntOr(KEY_CAMO_ROT, partRot[0]);
             if (legacyRot < 1) legacyRot = 1;
             if (legacyRot > 6) legacyRot = 6;
 
@@ -210,9 +211,9 @@ public final class FramedBlockEntity extends BlockEntity {
             partCamo[0] = legacyCamo;
             partRot[0] = legacyRot;
 
-            boolean doorHasTop = view.getBoolean(KEY_DOOR_HAS_TOP_CAMO, false);
+            boolean doorHasTop = view.getBooleanOr(KEY_DOOR_HAS_TOP_CAMO, false);
             BlockState doorTop = view.read(KEY_DOOR_TOP_CAMO, BlockState.CODEC).orElse(partCamo[1]);
-            int doorRot = view.getInt(KEY_DOOR_TOP_ROT, partRot[1]);
+            int doorRot = view.getIntOr(KEY_DOOR_TOP_ROT, partRot[1]);
             if (doorRot < 1) doorRot = 1;
             if (doorRot > 6) doorRot = 6;
 
@@ -221,12 +222,12 @@ public final class FramedBlockEntity extends BlockEntity {
             partRot[1] = doorRot;
 
             hasPart[2] = false;
-            partCamo[2] = Blocks.OAK_PLANKS.getDefaultState();
+            partCamo[2] = Blocks.OAK_PLANKS.defaultBlockState();
             partRot[2] = 1;
         }
 
         // server: keep HAS_CAMO in sync
-        if (world instanceof ServerWorld) {
+        if (level instanceof ServerLevel) {
             syncHasCamoProp();
         }
 
@@ -235,7 +236,7 @@ public final class FramedBlockEntity extends BlockEntity {
             boolean changed = false;
 
             // plant change check
-            if (!ItemStack.areItemsAndComponentsEqual(oldPlant, potPlant)) {
+            if (!ItemStack.isSameItemSameComponents(oldPlant, potPlant)) {
                 changed = true;
             }
 
@@ -249,54 +250,54 @@ public final class FramedBlockEntity extends BlockEntity {
             }
 
             if (changed) {
-                BlockState s = getCachedState();
-                world.updateListeners(pos, s, s, 3);
+                BlockState s = getBlockState();
+                level.sendBlockUpdated(worldPosition, s, s, 3);
             }
         }
     }
 
 
     @Override
-    protected void writeData(WriteView view) {
+    protected void saveAdditional(ValueOutput view) {
         boolean hasPlant = !potPlant.isEmpty();
         view.putBoolean(KEY_POT_HAS_PLANT, hasPlant);
 
         if (hasPlant) {
             ItemStack one = potPlant;
             if (one.getCount() != 1) one = one.copyWithCount(1);
-            view.put(KEY_POT_PLANT, ItemStack.CODEC, one);
+            view.store(KEY_POT_PLANT, ItemStack.CODEC, one);
         } else {
             // ✅ IMPORTANT: clear stale data so it doesn't try to encode "air x0"
-            view.remove(KEY_POT_PLANT);
+            view.discard(KEY_POT_PLANT);
         }
 
         for (int i = 0; i < MAX_CAMO_PARTS; i++) {
             view.putBoolean(KEY_PART_HAS_PREFIX + i, hasPart[i]);
-            view.put(KEY_PART_CAMO_PREFIX + i, BlockState.CODEC, partCamo[i]);
+            view.store(KEY_PART_CAMO_PREFIX + i, BlockState.CODEC, partCamo[i]);
             view.putInt(KEY_PART_ROT_PREFIX + i, partRot[i]);
         }
 
-        super.writeData(view);
+        super.saveAdditional(view);
     }
 
     private void syncAndRerender() {
-        markDirty();
+        setChanged();
 
-        if (world instanceof ServerWorld sw) {
-            sw.getChunkManager().markForUpdate(pos); // BE update packet
-            BlockState s = getCachedState();
-            sw.updateListeners(pos, s, s, 3);        // rerender
+        if (level instanceof ServerLevel sw) {
+            sw.getChunkSource().blockChanged(worldPosition); // BE update packet
+            BlockState s = getBlockState();
+            sw.sendBlockUpdated(worldPosition, s, s, 3);        // rerender
         }
     }
 
     @Override
-    public @Nullable Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public net.minecraft.nbt.NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
-        return createNbt(registries);
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 
     // ---- framed flower pot ----

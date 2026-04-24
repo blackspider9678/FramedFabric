@@ -3,6 +3,7 @@
   "format_version": "1.21.11",
   "credit": "Made with Blockbench",
   "textures": {
+    "all": "framedfabric:block/framed_texture",
     "particle": "framedfabric:block/framed_texture",
     "missing": "framedfabric:block/framed_texture"
   },

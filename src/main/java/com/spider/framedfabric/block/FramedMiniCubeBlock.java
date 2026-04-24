@@ -2,88 +2,88 @@ package com.spider.framedfabric.block;
 
 import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.enums.BlockFace;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
 
-    public static final MapCodec<FramedMiniCubeBlock> CODEC = createCodec(FramedMiniCubeBlock::new);
+    public static final MapCodec<FramedMiniCubeBlock> CODEC = simpleCodec(FramedMiniCubeBlock::new);
 
     // head-like placement props (1.21.11)
-    public static final EnumProperty<BlockFace> FACE = Properties.BLOCK_FACE;          // FLOOR / WALL / CEILING
-    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING; // N/E/S/W
-    public static final IntProperty ROTATION_16 = Properties.ROTATION;                // 0..15
+    public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;          // FLOOR / WALL / CEILING
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING; // N/E/S/W
+    public static final IntegerProperty ROTATION_16 = BlockStateProperties.ROTATION_16;                // 0..15
 
     // --- shapes (8x8x8 cube) ---
-    private static final VoxelShape SHAPE_CENTER = Block.createCuboidShape(4, 0, 4, 12, 8, 12);
+    private static final VoxelShape SHAPE_CENTER = Block.box(4, 0, 4, 12, 8, 12);
 
     // wall-mounted: stick out from the wall
-    private static final VoxelShape SHAPE_NORTH = Block.createCuboidShape(4, 4, 0, 12, 12, 8);
-    private static final VoxelShape SHAPE_SOUTH = Block.createCuboidShape(4, 4, 8, 12, 12, 16);
-    private static final VoxelShape SHAPE_WEST  = Block.createCuboidShape(0, 4, 4, 8, 12, 12);
-    private static final VoxelShape SHAPE_EAST  = Block.createCuboidShape(8, 4, 4, 16, 12, 12);
+    private static final VoxelShape SHAPE_NORTH = Block.box(4, 4, 0, 12, 12, 8);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(4, 4, 8, 12, 12, 16);
+    private static final VoxelShape SHAPE_WEST  = Block.box(0, 4, 4, 8, 12, 12);
+    private static final VoxelShape SHAPE_EAST  = Block.box(8, 4, 4, 16, 12, 12);
 
-    public FramedMiniCubeBlock(Settings settings) {
+    public FramedMiniCubeBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState()
-                .with(ROT, 1)
-                .with(FACE, BlockFace.FLOOR)
-                .with(FACING, Direction.NORTH)
-                .with(ROTATION_16, 0)
+        this.registerDefaultState(this.getStateDefinition().any()
+                .setValue(ROT, 1)
+                .setValue(FACE, AttachFace.FLOOR)
+                .setValue(FACING, Direction.NORTH)
+                .setValue(ROTATION_16, 0)
         );
     }
 
     @Override
-    protected MapCodec<? extends FramedMiniCubeBlock> getCodec() {
+    protected MapCodec<? extends FramedMiniCubeBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(FACE, FACING, ROTATION_16);
     }
 
     @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        Direction side = ctx.getSide();
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        Direction side = ctx.getClickedFace();
 
-        BlockFace face = switch (side) {
-            case DOWN -> BlockFace.CEILING;
-            case UP   -> BlockFace.FLOOR;
-            default   -> BlockFace.WALL;
+        AttachFace face = switch (side) {
+            case DOWN -> AttachFace.CEILING;
+            case UP   -> AttachFace.FLOOR;
+            default   -> AttachFace.WALL;
         };
 
-        BlockState s = this.getDefaultState().with(FACE, face);
+        BlockState s = this.defaultBlockState().setValue(FACE, face);
 
-        if (face == BlockFace.WALL) {
+        if (face == AttachFace.WALL) {
             // Wall: face away from the wall
             Direction f = side.getOpposite();
-            if (!f.getAxis().isHorizontal()) f = ctx.getHorizontalPlayerFacing().getOpposite();
-            s = s.with(FACING, f).with(ROTATION_16, 0);
+            if (!f.getAxis().isHorizontal()) f = ctx.getHorizontalDirection().getOpposite();
+            s = s.setValue(FACING, f).setValue(ROTATION_16, 0);
         } else {
             // Floor/Ceiling: 16-step yaw like skulls
-            PlayerEntity p = ctx.getPlayer();
-            float yaw = (p != null) ? p.getYaw() : 0.0f;
+            Player p = ctx.getPlayer();
+            float yaw = (p != null) ? p.getYRot() : 0.0f;
             int rot = rotationFromYaw(yaw);
 
-            s = s.with(ROTATION_16, rot)
-                    .with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()); // optional, but keeps state stable
+            s = s.setValue(ROTATION_16, rot)
+                    .setValue(FACING, ctx.getHorizontalDirection().getOpposite()); // optional, but keeps state stable
         }
 
         return s;
@@ -94,9 +94,9 @@ public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        if (state.get(FACE) == BlockFace.WALL) {
-            return switch (state.get(FACING)) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        if (state.getValue(FACE) == AttachFace.WALL) {
+            return switch (state.getValue(FACING)) {
                 case NORTH -> SHAPE_NORTH;
                 case SOUTH -> SHAPE_SOUTH;
                 case WEST  -> SHAPE_WEST;
@@ -108,26 +108,26 @@ public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
     }
 
     @Override
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
-        if (state.get(FACE) == BlockFace.WALL) {
-            return state.with(FACING, rotation.rotate(state.get(FACING)));
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        if (state.getValue(FACE) == AttachFace.WALL) {
+            return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
         } else {
-            int r = state.get(ROTATION_16);
-            return state.with(ROTATION_16, (r + rotationToSteps(rotation)) & 15);
+            int r = state.getValue(ROTATION_16);
+            return state.setValue(ROTATION_16, (r + rotationToSteps(rotation)) & 15);
         }
     }
 
     @Override
-    public BlockState mirror(BlockState state, BlockMirror mirror) {
-        if (state.get(FACE) == BlockFace.WALL) {
-            return state.rotate(mirror.getRotation(state.get(FACING)));
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        if (state.getValue(FACE) == AttachFace.WALL) {
+            return state.rotate(mirror.getRotation(state.getValue(FACING)));
         } else {
-            int r = state.get(ROTATION_16);
-            return state.with(ROTATION_16, mirrorRotation(r, mirror));
+            int r = state.getValue(ROTATION_16);
+            return state.setValue(ROTATION_16, mirrorRotation(r, mirror));
         }
     }
 
-    private static int rotationToSteps(BlockRotation rot) {
+    private static int rotationToSteps(Rotation rot) {
         return switch (rot) {
             case NONE -> 0;
             case CLOCKWISE_90 -> 4;
@@ -136,7 +136,7 @@ public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
         };
     }
 
-    private static int mirrorRotation(int r, BlockMirror mirror) {
+    private static int mirrorRotation(int r, Mirror mirror) {
         return switch (mirror) {
             case LEFT_RIGHT -> (16 - r) & 15;
             case FRONT_BACK -> (8 - r) & 15;
