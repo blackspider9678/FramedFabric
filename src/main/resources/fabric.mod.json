@@ -16,6 +16,9 @@
     "main": [
       "com.spider.framedfabric.FramedFabric"
     ],
+    "jei_mod_plugin": [
+      "com.spider.framedfabric.client.jei.FramedJeiPlugin"
+    ],
     "fabric-datagen": [
       "com.spider.framedfabric.client.datagen.FramedFabricDataGen"
     ]
@@ -27,5 +30,8 @@
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "jei": "*"
   }
 }
