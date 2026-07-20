@@ -5,9 +5,9 @@
     { "when": { "corner": "nw", "half": "bottom" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "y": 180 } },
     { "when": { "corner": "ne", "half": "bottom" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "y": 270 } },
 
-    { "when": { "corner": "se", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 0 } },
-    { "when": { "corner": "sw", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 90 } },
-    { "when": { "corner": "nw", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 180 } },
-    { "when": { "corner": "ne", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 270 } }
+    { "when": { "corner": "se", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 90 } },
+    { "when": { "corner": "sw", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 180 } },
+    { "when": { "corner": "nw", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 270 } },
+    { "when": { "corner": "ne", "half": "top" }, "apply": { "model": "framedfabric:block/framed_corner_cube", "x": 180, "y": 0 } }
   ]
 }

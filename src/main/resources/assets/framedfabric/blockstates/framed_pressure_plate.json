@@ -1,31 +1,12 @@
 {
-  "variants": {
-    "has_camo=false,powered=false,rot=1": { "model": "framedfabric:block/framed_pressure_plate" },
-    "has_camo=false,powered=false,rot=2": { "model": "framedfabric:block/framed_pressure_plate", "y": 90 },
-    "has_camo=false,powered=false,rot=3": { "model": "framedfabric:block/framed_pressure_plate", "y": 180 },
-    "has_camo=false,powered=false,rot=4": { "model": "framedfabric:block/framed_pressure_plate", "y": 270 },
-    "has_camo=false,powered=false,rot=5": { "model": "framedfabric:block/framed_pressure_plate", "x": 90 },
-    "has_camo=false,powered=false,rot=6": { "model": "framedfabric:block/framed_pressure_plate", "x": 270 },
-
-    "has_camo=false,powered=true,rot=1": { "model": "framedfabric:block/framed_pressure_plate_down" },
-    "has_camo=false,powered=true,rot=2": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 90 },
-    "has_camo=false,powered=true,rot=3": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 180 },
-    "has_camo=false,powered=true,rot=4": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 270 },
-    "has_camo=false,powered=true,rot=5": { "model": "framedfabric:block/framed_pressure_plate_down", "x": 90 },
-    "has_camo=false,powered=true,rot=6": { "model": "framedfabric:block/framed_pressure_plate_down", "x": 270 },
-
-    "has_camo=true,powered=false,rot=1": { "model": "framedfabric:block/framed_pressure_plate" },
-    "has_camo=true,powered=false,rot=2": { "model": "framedfabric:block/framed_pressure_plate", "y": 90 },
-    "has_camo=true,powered=false,rot=3": { "model": "framedfabric:block/framed_pressure_plate", "y": 180 },
-    "has_camo=true,powered=false,rot=4": { "model": "framedfabric:block/framed_pressure_plate", "y": 270 },
-    "has_camo=true,powered=false,rot=5": { "model": "framedfabric:block/framed_pressure_plate", "x": 90 },
-    "has_camo=true,powered=false,rot=6": { "model": "framedfabric:block/framed_pressure_plate", "x": 270 },
-
-    "has_camo=true,powered=true,rot=1": { "model": "framedfabric:block/framed_pressure_plate_down" },
-    "has_camo=true,powered=true,rot=2": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 90 },
-    "has_camo=true,powered=true,rot=3": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 180 },
-    "has_camo=true,powered=true,rot=4": { "model": "framedfabric:block/framed_pressure_plate_down", "y": 270 },
-    "has_camo=true,powered=true,rot=5": { "model": "framedfabric:block/framed_pressure_plate_down", "x": 90 },
-    "has_camo=true,powered=true,rot=6": { "model": "framedfabric:block/framed_pressure_plate_down", "x": 270 }
-  }
+  "multipart": [
+    {
+      "when": { "powered": false },
+      "apply": { "model": "framedfabric:block/framed_pressure_plate" }
+    },
+    {
+      "when": { "powered": true },
+      "apply": { "model": "framedfabric:block/framed_pressure_plate_down" }
+    }
+  ]
 }

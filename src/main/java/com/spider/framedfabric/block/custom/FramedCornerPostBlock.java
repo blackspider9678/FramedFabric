@@ -21,6 +21,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
@@ -86,37 +87,15 @@ public class FramedCornerPostBlock extends AbstractFramedEntityBlock implements 
         // default flip rule: placing on underside flips
         boolean upsideDown = ctx.getSide() == Direction.DOWN;
 
-        // Smart corner pick: depends on which face you clicked
+        // Smart corner pick: use the hit position inside the placement block.
+        // On side placements, the hit is on the adjacent edge of the new block.
         Direction side = ctx.getSide();
-        Corner corner;
+        Corner corner = pickCornerSmart(lx, lz);
 
         switch (side) {
-            case UP, DOWN -> {
-                // choose corner by X/Z
-                corner = pickCornerXZ(lx, lz);
-            }
-            case NORTH -> {
-                // looking at the north face: use X for left/right, Y for up/down
-                corner = pickCornerXZ(lx, 0.0); // z doesn't matter; we're selecting NW/NE based on x
-                // optional: aim high to flip
-                upsideDown = (ly >= 0.5);
-            }
-            case SOUTH -> {
-                // south face: use X for left/right, Y for up/down
-                corner = pickCornerXZ(lx, 1.0); // select SW/SE based on x, force "south"
-                upsideDown = (ly >= 0.5);
-            }
-            case WEST -> {
-                // west face: use Z for left/right along the face, Y for up/down
-                corner = pickCornerXZ(0.0, lz); // select NW/SW based on z, force "west"
-                upsideDown = (ly >= 0.5);
-            }
-            case EAST -> {
-                // east face: use Z for left/right, Y for up/down
-                corner = pickCornerXZ(1.0, lz); // select NE/SE based on z, force "east"
-                upsideDown = (ly >= 0.5);
-            }
-            default -> corner = Corner.SE;
+            case UP -> upsideDown = false;
+            case DOWN -> upsideDown = true;
+            default -> upsideDown = (ly >= 0.5);
         }
 
         return state
@@ -140,14 +119,10 @@ public class FramedCornerPostBlock extends AbstractFramedEntityBlock implements 
         return Corner.SE;
     }
 
-    private static Corner pickCorner(double localX, double localZ) {
-        boolean east = localX >= 0.5;
-        boolean south = localZ >= 0.5;
-
-        if (!east && !south) return Corner.NW;
-        if ( east && !south) return Corner.NE;
-        if (!east &&  south) return Corner.SW;
-        return Corner.SE;
+    private static Corner pickCornerSmart(double localX, double localZ) {
+        double clampedX = MathHelper.clamp(localX, 0.0, 1.0);
+        double clampedZ = MathHelper.clamp(localZ, 0.0, 1.0);
+        return pickCornerXZ(clampedX, clampedZ);
     }
 
     private static VoxelShape shapeFor(BlockState state) {
