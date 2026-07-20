@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:willow_planks",
+        "biomeswevegone:willow_boat"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:willow_planks",
+  "input_count": 3,
+  "result": {
+    "id": "biomeswevegone:willow_boat",
+    "count": 1
+  }
+}

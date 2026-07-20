@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:dark_oak_planks",
+  "input_count": 3,
+  "result": {
+    "id": "minecraft:dark_oak_boat",
+    "count": 1
+  }
+}

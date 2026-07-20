@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:palm_wood",
+        "biomeswevegone:palm_planks"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:palm_wood",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:palm_planks",
+    "count": 3
+  }
+}

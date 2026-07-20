@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:rainbow_eucalyptus_planks",
+        "biomeswevegone:rainbow_eucalyptus_sign"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:rainbow_eucalyptus_planks",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:rainbow_eucalyptus_sign",
+    "count": 3
+  }
+}

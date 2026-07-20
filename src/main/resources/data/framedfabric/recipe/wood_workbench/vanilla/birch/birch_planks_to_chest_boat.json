@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:birch_planks",
+  "input_count": 8,
+  "result": {
+    "id": "minecraft:birch_chest_boat",
+    "count": 1
+  }
+}

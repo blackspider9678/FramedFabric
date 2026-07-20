@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "framedfabric:framed_half_slab",
+  "input_count": 3,
+  "result": {
+    "id": "framedfabric:framed_vertical_stairs",
+    "count": 1
+  }
+}

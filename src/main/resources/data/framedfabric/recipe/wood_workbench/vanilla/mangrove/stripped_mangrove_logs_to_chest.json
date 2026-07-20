@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:stripped_mangrove_log",
+  "input_count": 2,
+  "result": {
+    "id": "minecraft:chest",
+    "count": 1
+  }
+}

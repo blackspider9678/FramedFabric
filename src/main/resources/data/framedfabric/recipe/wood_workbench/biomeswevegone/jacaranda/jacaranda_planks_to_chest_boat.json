@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:jacaranda_planks",
+        "biomeswevegone:jacaranda_chest_boat"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:jacaranda_planks",
+  "input_count": 8,
+  "result": {
+    "id": "biomeswevegone:jacaranda_chest_boat",
+    "count": 1
+  }
+}

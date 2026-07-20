@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:spruce_log",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:stripped_spruce_log",
+    "count": 1
+  }
+}

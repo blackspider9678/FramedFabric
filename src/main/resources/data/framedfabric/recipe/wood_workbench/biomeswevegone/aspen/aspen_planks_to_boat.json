@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:aspen_planks",
+        "biomeswevegone:aspen_boat"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:aspen_planks",
+  "input_count": 3,
+  "result": {
+    "id": "biomeswevegone:aspen_boat",
+    "count": 1
+  }
+}

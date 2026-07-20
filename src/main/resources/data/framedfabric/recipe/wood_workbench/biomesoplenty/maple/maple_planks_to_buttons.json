@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomesoplenty"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomesoplenty:maple_planks",
+        "biomesoplenty:maple_button"
+      ]
+    }
+  ],
+  "ingredient": "biomesoplenty:maple_planks",
+  "input_count": 1,
+  "result": {
+    "id": "biomesoplenty:maple_button",
+    "count": 8
+  }
+}

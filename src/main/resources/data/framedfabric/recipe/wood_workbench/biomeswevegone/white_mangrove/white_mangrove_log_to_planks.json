@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:white_mangrove_log",
+        "biomeswevegone:white_mangrove_planks"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:white_mangrove_log",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:white_mangrove_planks",
+    "count": 4
+  }
+}

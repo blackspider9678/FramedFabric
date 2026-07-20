@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:cika_planks",
+        "biomeswevegone:cika_chest_boat"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:cika_planks",
+  "input_count": 8,
+  "result": {
+    "id": "biomeswevegone:cika_chest_boat",
+    "count": 1
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:cypress_planks",
+        "biomeswevegone:cypress_button"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:cypress_planks",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:cypress_button",
+    "count": 8
+  }
+}

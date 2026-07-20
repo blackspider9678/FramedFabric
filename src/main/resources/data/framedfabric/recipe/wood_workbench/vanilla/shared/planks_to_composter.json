@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "#minecraft:planks",
+  "input_count": 3,
+  "result": {
+    "id": "minecraft:composter",
+    "count": 1
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:warped_stem",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:stick",
+    "count": 8
+  }
+}

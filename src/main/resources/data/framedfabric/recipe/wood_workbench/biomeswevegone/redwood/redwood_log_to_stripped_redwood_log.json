@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:redwood_log",
+        "biomeswevegone:stripped_redwood_log"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:redwood_log",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:stripped_redwood_log",
+    "count": 1
+  }
+}

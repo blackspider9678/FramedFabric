@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:bamboo_block",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:bamboo_planks",
+    "count": 2
+  }
+}

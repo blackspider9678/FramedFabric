@@ -1,0 +1,24 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomesoplenty"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomesoplenty:magic_log"
+      ]
+    }
+  ],
+  "ingredient": "biomesoplenty:magic_log",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:crafting_table",
+    "count": 1
+  }
+}

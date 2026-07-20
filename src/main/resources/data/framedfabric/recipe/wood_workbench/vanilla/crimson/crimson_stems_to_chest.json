@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:crimson_stem",
+  "input_count": 2,
+  "result": {
+    "id": "minecraft:chest",
+    "count": 1
+  }
+}

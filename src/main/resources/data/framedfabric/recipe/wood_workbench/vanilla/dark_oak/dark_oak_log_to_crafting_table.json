@@ -1,0 +1,9 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "ingredient": "minecraft:dark_oak_log",
+  "input_count": 1,
+  "result": {
+    "id": "minecraft:crafting_table",
+    "count": 1
+  }
+}

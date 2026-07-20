@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:green_enchanted_planks",
+        "biomeswevegone:green_enchanted_button"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:green_enchanted_planks",
+  "input_count": 1,
+  "result": {
+    "id": "biomeswevegone:green_enchanted_button",
+    "count": 8
+  }
+}

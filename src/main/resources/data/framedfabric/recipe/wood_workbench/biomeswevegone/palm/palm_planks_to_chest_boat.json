@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomeswevegone"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomeswevegone:palm_planks",
+        "biomeswevegone:palm_chest_boat"
+      ]
+    }
+  ],
+  "ingredient": "biomeswevegone:palm_planks",
+  "input_count": 8,
+  "result": {
+    "id": "biomeswevegone:palm_chest_boat",
+    "count": 1
+  }
+}

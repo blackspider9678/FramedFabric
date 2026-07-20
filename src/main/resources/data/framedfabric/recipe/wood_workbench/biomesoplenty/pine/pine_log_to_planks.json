@@ -1,0 +1,25 @@
+{
+  "type": "framedfabric:wood_workbench",
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "biomesoplenty"
+      ]
+    },
+    {
+      "condition": "fabric:registry_contains",
+      "registry": "minecraft:item",
+      "values": [
+        "biomesoplenty:pine_log",
+        "biomesoplenty:pine_planks"
+      ]
+    }
+  ],
+  "ingredient": "biomesoplenty:pine_log",
+  "input_count": 1,
+  "result": {
+    "id": "biomesoplenty:pine_planks",
+    "count": 4
+  }
+}
