@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "texture": "framedfabric:block/framed_texture",
+    "particle": "framedfabric:block/framed_texture"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 15],
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#texture" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#texture" },
+        "up": { "uv": [0, 0, 16, 15], "texture": "#texture" },
+        "down": { "uv": [0, 0, 16, 15], "texture": "#texture" },
+        "west": { "uv": [0, 0, 15, 16], "texture": "#texture" },
+        "east": { "uv": [0, 0, 15, 16], "texture": "#texture" }
+      }
+    }
+  ]
+}
