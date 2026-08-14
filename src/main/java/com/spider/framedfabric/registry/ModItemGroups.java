@@ -55,6 +55,8 @@ public final class ModItemGroups {
                         entries.add(ModBlocks.FRAMED_LIGHTNING_ROD);
                         //entries.add(ModBlocks.FRAMED_FLOWER_POT);
                         entries.add(ModBlocks.FRAMED_LADDER);
+                        entries.add(ModBlocks.FRAMED_SIGN);
+                        entries.add(ModBlocks.FRAMED_SHELF);
 
                         //Custom Style
                         //entries.add(ModBlocks.FRAMED_SLOPE);

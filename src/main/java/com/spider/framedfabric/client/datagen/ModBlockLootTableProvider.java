@@ -41,6 +41,10 @@ public class ModBlockLootTableProvider extends FabricBlockLootTableProvider {
             return doorDrops(block);
         }
 
+        if (block == ModBlocks.FRAMED_WALL_SIGN) {
+            return dropItem(block, ModBlocks.FRAMED_SIGN);
+        }
+
         if (block == ModBlocks.FRAMED_SLAB || block == ModBlocks.FRAMED_CHECKERED_SLAB) {
             return slabDrops(block);
         }
@@ -54,6 +58,13 @@ public class ModBlockLootTableProvider extends FabricBlockLootTableProvider {
         }
 
         return drops(block);
+    }
+
+    private LootTable.Builder dropItem(Block brokenBlock, Block droppedBlock) {
+        return LootTable.builder()
+                .pool(LootPool.builder()
+                        .rolls(ConstantLootNumberProvider.create(1.0F))
+                        .with(applyExplosionDecay(brokenBlock, ItemEntry.builder(droppedBlock))));
     }
 
     private <T extends Comparable<T> & StringIdentifiable> LootTable.Builder doubledDropOnProperty(

@@ -1,6 +1,5 @@
 package com.spider.framedfabric.camo;
 
-import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.registry.FramedTags;
 import com.spider.framedfabric.registry.ModItems;
 import net.minecraft.block.BlockState;
@@ -14,7 +13,7 @@ import net.minecraft.world.World;
 public final class FramedCamoLogic {
     private FramedCamoLogic() {}
 
-    public static ActionResult onUse(World world, PlayerEntity player, Hand hand, FramedBlockEntity be, int partIndex, boolean blockAllWhenLocked) {
+    public static ActionResult onUse(World world, PlayerEntity player, Hand hand, FramedCamoAccess be, int partIndex, boolean blockAllWhenLocked) {
         ItemStack held = player.getStackInHand(hand);
 
         if (FramedTags.isFramedStack(held)) return ActionResult.PASS;
@@ -45,12 +44,12 @@ public final class FramedCamoLogic {
         return ActionResult.PASS;
     }
 
-    public static ItemStack camoRefundStack(FramedBlockEntity be, int partIndex) {
+    public static ItemStack camoRefundStack(FramedCamoAccess be, int partIndex) {
         return new ItemStack(be.getCamoPart(partIndex).getBlock().asItem());
     }
 
     // legacy helper (keeps older callers compiling if any remain)
-    public static ItemStack camoRefundStack(FramedBlockEntity be) {
+    public static ItemStack camoRefundStack(FramedCamoAccess be) {
         return camoRefundStack(be, 0);
     }
 

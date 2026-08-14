@@ -1,7 +1,12 @@
 // 1.21.11	-999999999-01-01T00:00:00	FramedFabric/Tags for minecraft:block
-22de0c04d63a1d52c37ad7e37547412e7a386f79 data/framedfabric/tags/block/framed.json
+3f5bb215bf72b891e10506c2494d6a8aae6dc272 data/framedfabric/tags/block/framed.json
+2262d8bae37fdc21343fefd270f9ff79b80967db data/minecraft/tags/block/all_signs.json
 2748730c6433339c2d6174318c5a955e2371f585 data/minecraft/tags/block/fences.json
-4d75fe66db634b85cc0b8d8db2b3e176daae2a60 data/minecraft/tags/block/mineable/axe.json
+eaad6aad469a13bacb792073dd02ab174580116e data/minecraft/tags/block/mineable/axe.json
+2262d8bae37fdc21343fefd270f9ff79b80967db data/minecraft/tags/block/signs.json
 2a5d99e9e26b93847513e9d6184f3f59b73b815c data/minecraft/tags/block/slabs.json
 c01a58f87b7a264c7d89165af03e93ab1a9062d7 data/minecraft/tags/block/stairs.json
+2067e88801154d2b05e3a2570b2851dc0317e06a data/minecraft/tags/block/standing_signs.json
+2465b064383bee1bbe2cc8e30524c65650a78f10 data/minecraft/tags/block/wall_signs.json
 b6f79617d9b8d645d272d4bc531c861673e77af2 data/minecraft/tags/block/walls.json
+d7df2510cc1ea12abe10b5c21f0c8daf10988739 data/minecraft/tags/block/wooden_shelves.json

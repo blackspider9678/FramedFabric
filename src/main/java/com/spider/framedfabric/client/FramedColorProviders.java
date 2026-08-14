@@ -1,7 +1,6 @@
 package com.spider.framedfabric.client;
 
-import com.spider.framedfabric.block.custom.FramedCheckeredSlabBlock;
-import com.spider.framedfabric.blockentity.FramedBlockEntity;
+import com.spider.framedfabric.camo.FramedCamoAccess;
 import com.spider.framedfabric.registry.ModBlocks;
 import com.spider.framedfabric.registry.FramedTags;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -31,7 +30,7 @@ public final class FramedColorProviders {
                 if (client == null || client.getBlockColors() == null) return -1;
 
                 var be = brv.getBlockEntity(pos);
-                if (!(be instanceof FramedBlockEntity fbe) || !fbe.hasAnyCamo()) return -1;
+                if (!(be instanceof FramedCamoAccess fbe) || !fbe.hasAnyCamo()) return -1;
 
                 int part;
                 int camoTintIndex = tintIndex;
@@ -45,7 +44,7 @@ public final class FramedColorProviders {
                     part = packed / 8;
                     camoTintIndex = packed % 8;
 
-                    if (part < 0 || part >= FramedBlockEntity.MAX_CAMO_PARTS) return -1;
+                    if (part < 0 || part >= FramedCamoAccess.MAX_CAMO_PARTS) return -1;
                 }
                 // 2) UNPACKED: only vanilla-type blocks that *need* dynamic part choice
                 else if (state.getBlock() instanceof SlabBlock) {

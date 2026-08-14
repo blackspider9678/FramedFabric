@@ -31,5 +31,7 @@
   "block.framedfabric.framed_small_post": "Framed Small Post",
   "block.framedfabric.wood_workbench": "Wood Workbench",
   "block.framedfabric.framed_wall": "Framed Wall",
-  "block.framedfabric.framed_ladder": "Framed Ladder"
+  "block.framedfabric.framed_ladder": "Framed Ladder",
+  "block.framedfabric.framed_sign": "Framed Sign",
+  "block.framedfabric.framed_shelf": "Framed Shelf"
 }

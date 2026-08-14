@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "rotation=0": { "model": "framedfabric:block/framed_sign" },
+    "rotation=1": { "model": "framedfabric:block/framed_sign" },
+    "rotation=2": { "model": "framedfabric:block/framed_sign" },
+    "rotation=3": { "model": "framedfabric:block/framed_sign" },
+    "rotation=4": { "model": "framedfabric:block/framed_sign" },
+    "rotation=5": { "model": "framedfabric:block/framed_sign" },
+    "rotation=6": { "model": "framedfabric:block/framed_sign" },
+    "rotation=7": { "model": "framedfabric:block/framed_sign" },
+    "rotation=8": { "model": "framedfabric:block/framed_sign" },
+    "rotation=9": { "model": "framedfabric:block/framed_sign" },
+    "rotation=10": { "model": "framedfabric:block/framed_sign" },
+    "rotation=11": { "model": "framedfabric:block/framed_sign" },
+    "rotation=12": { "model": "framedfabric:block/framed_sign" },
+    "rotation=13": { "model": "framedfabric:block/framed_sign" },
+    "rotation=14": { "model": "framedfabric:block/framed_sign" },
+    "rotation=15": { "model": "framedfabric:block/framed_sign" }
+  }
+}

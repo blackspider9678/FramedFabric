@@ -3,12 +3,13 @@ package com.spider.framedfabric.client.model;
 import com.spider.framedfabric.block.FramedMiniCubeBlock;
 import com.spider.framedfabric.block.custom.FramedCheckeredBlock;
 import com.spider.framedfabric.block.custom.FramedVerticalSlabBlock;
-import com.spider.framedfabric.blockentity.FramedBlockEntity;
+import com.spider.framedfabric.camo.FramedCamoAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadTransform;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBlockStateModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.SignBlock;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.client.MinecraftClient;
@@ -34,9 +35,6 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         this.parent = parent;
     }
 
-    private static final net.minecraft.util.Identifier POT_DIRT_TEX =
-            net.minecraft.util.Identifier.of("minecraft", "block/dirt");
-
     @Override
     public void emitQuads(
             QuadEmitter emitter,
@@ -46,8 +44,15 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
             Random random,
             Predicate<@Nullable Direction> cullTest
     ) {
+        final boolean isStandingSign = state.getBlock() instanceof SignBlock;
+
         var be = view.getBlockEntity(pos);
-        if (!(be instanceof FramedBlockEntity fbe) || !fbe.hasAnyCamo()) {
+        if (!(be instanceof FramedCamoAccess fbe) || !fbe.hasAnyCamo()) {
+            if (isStandingSign) {
+                emitRotatedStandingSignQuads(emitter, view, pos, state, random, cullTest);
+                return;
+            }
+
             parent.emitQuads(emitter, view, pos, state, random, cullTest);
             return;
         }
@@ -59,8 +64,8 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         final boolean isVSlab = (state.getBlock() instanceof FramedVerticalSlabBlock);
         final boolean isCheckered = (state.getBlock() instanceof FramedCheckeredBlock);
 
-        PartRender[] parts = new PartRender[FramedBlockEntity.MAX_CAMO_PARTS];
-        for (int i = 0; i < FramedBlockEntity.MAX_CAMO_PARTS; i++) {
+        PartRender[] parts = new PartRender[FramedCamoAccess.MAX_CAMO_PARTS];
+        for (int i = 0; i < FramedCamoAccess.MAX_CAMO_PARTS; i++) {
             if (!fbe.hasCamoPart(i)) continue;
 
             BlockState camo = fbe.getCamoPart(i);
@@ -80,11 +85,20 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         boolean any = false;
         for (PartRender pr : parts) if (pr != null) { any = true; break; }
         if (!any) {
+            if (isStandingSign) {
+                emitRotatedStandingSignQuads(emitter, view, pos, state, random, cullTest);
+                return;
+            }
+
             parent.emitQuads(emitter, view, pos, state, random, cullTest);
             return;
         }
 
         QuadTransform swap = quad -> {
+            if (isStandingSign) {
+                rotateStandingSignQuad(state, quad);
+            }
+
             // ✅ don't camo-swap the flower pot dirt layer
             if (quad.tintIndex() == 7) {
                 return true;
@@ -187,6 +201,40 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         emitter.pushTransform(swap);
         parent.emitQuads(emitter, view, pos, state, random, cullTest);
         emitter.popTransform();
+    }
+
+    private void emitRotatedStandingSignQuads(
+            QuadEmitter emitter,
+            BlockRenderView view,
+            BlockPos pos,
+            BlockState state,
+            Random random,
+            Predicate<@Nullable Direction> cullTest
+    ) {
+        QuadTransform rotate = quad -> {
+            rotateStandingSignQuad(state, quad);
+            return true;
+        };
+
+        emitter.pushTransform(rotate);
+        parent.emitQuads(emitter, view, pos, state, random, cullTest);
+        emitter.popTransform();
+    }
+
+    private static void rotateStandingSignQuad(BlockState state, MutableQuadView quad) {
+        if (!(state.getBlock() instanceof SignBlock signBlock)) return;
+
+        double radians = Math.toRadians(signBlock.getRotationDegrees(state));
+        float sin = (float) Math.sin(radians);
+        float cos = (float) Math.cos(radians);
+
+        for (int i = 0; i < 4; i++) {
+            float x = quad.x(i) - 0.5f;
+            float z = quad.z(i) - 0.5f;
+            float rotatedX = x * cos + z * sin;
+            float rotatedZ = z * cos - x * sin;
+            quad.pos(i, rotatedX + 0.5f, quad.y(i), rotatedZ + 0.5f);
+        }
     }
 
     private record PartRender(

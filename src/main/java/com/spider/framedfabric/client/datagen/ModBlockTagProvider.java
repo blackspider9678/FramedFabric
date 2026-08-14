@@ -38,5 +38,10 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
         valueLookupBuilder(BlockTags.FENCES).add(ModBlocks.FRAMED_FENCE);
         valueLookupBuilder(BlockTags.SLABS).add(ModBlocks.FRAMED_SLAB);
         valueLookupBuilder(BlockTags.STAIRS).add(ModBlocks.FRAMED_STAIRS);
+        valueLookupBuilder(BlockTags.STANDING_SIGNS).add(ModBlocks.FRAMED_SIGN);
+        valueLookupBuilder(BlockTags.WALL_SIGNS).add(ModBlocks.FRAMED_WALL_SIGN);
+        valueLookupBuilder(BlockTags.SIGNS).add(ModBlocks.FRAMED_SIGN, ModBlocks.FRAMED_WALL_SIGN);
+        valueLookupBuilder(BlockTags.ALL_SIGNS).add(ModBlocks.FRAMED_SIGN, ModBlocks.FRAMED_WALL_SIGN);
+        valueLookupBuilder(BlockTags.WOODEN_SHELVES).add(ModBlocks.FRAMED_SHELF);
     }
 }

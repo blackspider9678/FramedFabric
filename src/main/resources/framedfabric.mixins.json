@@ -4,6 +4,7 @@
   "package": "com.spider.framedfabric.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ShelfBlockEntityMixin"
   ],
   "client": [
   ],

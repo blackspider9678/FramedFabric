@@ -1,5 +1,7 @@
 package com.spider.framedfabric.blockentity;
 
+import com.spider.framedfabric.camo.FramedCamoAccess;
+import com.spider.framedfabric.compat.voxy.VoxyCompat;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
-public final class FramedBlockEntity extends BlockEntity {
+public final class FramedBlockEntity extends BlockEntity implements FramedCamoAccess {
 
     // ---- legacy keys (migrate) ----
     private static final String KEY_HAS_CAMO = "has_camo";
@@ -57,26 +59,31 @@ public final class FramedBlockEntity extends BlockEntity {
     // New generic API
     // ------------------------------------------------------------
 
+    @Override
     public boolean hasAnyCamo() {
         for (boolean b : hasPart) if (b) return true;
         return false;
     }
 
+    @Override
     public boolean hasCamoPart(int index) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return false;
         return hasPart[index];
     }
 
+    @Override
     public BlockState getCamoPart(int index) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return Blocks.OAK_PLANKS.getDefaultState();
         return partCamo[index];
     }
 
+    @Override
     public int getCamoRotPart(int index) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return 1;
         return partRot[index];
     }
 
+    @Override
     public void setCamoPart(int index, BlockState camo) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return;
         if (camo == null) return;
@@ -88,6 +95,7 @@ public final class FramedBlockEntity extends BlockEntity {
         syncAndRerender();
     }
 
+    @Override
     public void clearCamoPart(int index) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return;
 
@@ -99,6 +107,7 @@ public final class FramedBlockEntity extends BlockEntity {
         syncAndRerender();
     }
 
+    @Override
     public void setCamoRotPart(int index, int rot) {
         if (index < 0 || index >= MAX_CAMO_PARTS) return;
 
@@ -111,6 +120,7 @@ public final class FramedBlockEntity extends BlockEntity {
         syncAndRerender();
     }
 
+    @Override
     public void cycleCamoRotPart(int index) {
         setCamoRotPart(index, (getCamoRotPart(index) >= 6) ? 1 : (getCamoRotPart(index) + 1));
     }
@@ -251,6 +261,7 @@ public final class FramedBlockEntity extends BlockEntity {
             if (changed) {
                 BlockState s = getCachedState();
                 world.updateListeners(pos, s, s, 3);
+                VoxyCompat.refreshChunk(world, pos);
             }
         }
     }

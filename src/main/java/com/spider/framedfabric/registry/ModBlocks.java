@@ -6,13 +6,19 @@ import com.spider.framedfabric.block.custom.*;
 import com.spider.framedfabric.block.FramedLadderBlock;
 import net.minecraft.block.*;
 import net.minecraft.item.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.SignItem;
+import net.minecraft.loot.LootTable;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class ModBlocks {
@@ -93,6 +99,24 @@ public final class ModBlocks {
     public static final Block FRAMED_LADDER =
             register("framed_ladder", FramedLadderBlock::new, BASE);
 
+    public static final Block FRAMED_WALL_SIGN =
+            registerBlockOnly("framed_wall_sign",
+                    s -> new FramedWallSignBlock(WoodType.OAK, s),
+                    AbstractBlock.Settings.copy(Blocks.OAK_WALL_SIGN).nonOpaque(),
+                    true);
+
+    public static final Block FRAMED_SIGN =
+            register("framed_sign",
+                    s -> new FramedSignBlock(WoodType.OAK, s),
+                    AbstractBlock.Settings.copy(Blocks.OAK_SIGN).nonOpaque(),
+                    true,
+                    (block, settings) -> new SignItem(settings, block, FRAMED_WALL_SIGN, Direction.DOWN));
+
+    public static final Block FRAMED_SHELF =
+            register("framed_shelf",
+                    FramedShelfBlock::new,
+                    AbstractBlock.Settings.copy(Blocks.OAK_SHELF).nonOpaque());
+
     //Custom Blocks
     public static final Block FRAMED_SLOPE =
             register("framed_slope", FramedSlopeBlock::new,
@@ -152,6 +176,7 @@ public final class ModBlocks {
         Identifier id = Identifier.of(FramedFabric.MOD_ID, path);
         RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
 
+        settings.registryKey(key).lootTable(Optional.of(lootTableKey(path)));
         Block block = Blocks.register(key, factory, settings);
         Items.register(block);
 
@@ -160,5 +185,44 @@ public final class ModBlocks {
         }
 
         return block;
+    }
+
+    private static Block register(
+            String path,
+            Function<AbstractBlock.Settings, Block> factory,
+            AbstractBlock.Settings settings,
+            boolean framed,
+            BiFunction<Block, Item.Settings, Item> itemFactory
+    ) {
+        Identifier id = Identifier.of(FramedFabric.MOD_ID, path);
+        RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
+
+        settings.registryKey(key).lootTable(Optional.of(lootTableKey(path)));
+        Block block = Blocks.register(key, factory, settings);
+        Items.register(block, itemFactory);
+
+        if (framed) {
+            FRAMED_ALL.add(block);
+        }
+
+        return block;
+    }
+
+    private static Block registerBlockOnly(String path, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings, boolean framed) {
+        Identifier id = Identifier.of(FramedFabric.MOD_ID, path);
+        RegistryKey<Block> key = RegistryKey.of(RegistryKeys.BLOCK, id);
+
+        settings.registryKey(key).lootTable(Optional.of(lootTableKey(path)));
+        Block block = Blocks.register(key, factory, settings);
+
+        if (framed) {
+            FRAMED_ALL.add(block);
+        }
+
+        return block;
+    }
+
+    private static RegistryKey<LootTable> lootTableKey(String path) {
+        return RegistryKey.of(RegistryKeys.LOOT_TABLE, Identifier.of(FramedFabric.MOD_ID, "blocks/" + path));
     }
 }

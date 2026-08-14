@@ -3,7 +3,7 @@
   "ingredient": "framedfabric:framed_block",
   "input_count": 1,
   "result": {
-    "id": "framedfabric:framed_thin_plate",
-    "count": 16
+    "id": "framedfabric:framed_shelf",
+    "count": 6
   }
 }

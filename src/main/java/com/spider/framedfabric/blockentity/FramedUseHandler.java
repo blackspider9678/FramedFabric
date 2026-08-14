@@ -3,6 +3,7 @@ package com.spider.framedfabric.blockentity;
 import com.spider.framedfabric.block.custom.FramedCheckeredBlock;
 import com.spider.framedfabric.block.custom.FramedCheckeredSlabBlock;
 import com.spider.framedfabric.block.custom.FramedVerticalSlabBlock;
+import com.spider.framedfabric.camo.FramedCamoAccess;
 import com.spider.framedfabric.camo.FramedCamoLogic;
 import com.spider.framedfabric.registry.FramedTags;
 import com.spider.framedfabric.registry.ModItems;
@@ -135,7 +136,7 @@ public final class FramedUseHandler {
             BlockPos pos,
             PlayerEntity player,
             BlockHitResult hit,
-            @Nullable FramedBlockEntity be
+            @Nullable FramedCamoAccess be
     ) {
         return handleUse(state, world, pos, player, hit, be, -1);
     }
@@ -150,7 +151,7 @@ public final class FramedUseHandler {
             BlockPos pos,
             PlayerEntity player,
             BlockHitResult hit,
-            @Nullable FramedBlockEntity be
+            @Nullable FramedCamoAccess be
     ) {
         if (be == null) return ActionResult.PASS;
 
@@ -199,7 +200,7 @@ public final class FramedUseHandler {
             BlockPos pos,
             PlayerEntity player,
             BlockHitResult hit,
-            @Nullable FramedBlockEntity be
+            @Nullable FramedCamoAccess be
     ) {
         if (be == null) return ActionResult.PASS;
 
@@ -247,7 +248,7 @@ public final class FramedUseHandler {
             BlockPos pos,
             PlayerEntity player,
             BlockHitResult hit,
-            @Nullable FramedBlockEntity be,
+            @Nullable FramedCamoAccess be,
             int forcedPart // <--- NEW
     ) {
         if (be == null) return ActionResult.PASS;
@@ -276,5 +277,64 @@ public final class FramedUseHandler {
             r = FramedCamoLogic.onUse(world, player, Hand.OFF_HAND, be, part, true);
         }
         return r;
+    }
+
+    public static ActionResult handleUseBeforeVanilla(
+            BlockState state,
+            World world,
+            BlockPos pos,
+            PlayerEntity player,
+            BlockHitResult hit,
+            @Nullable FramedCamoAccess be
+    ) {
+        if (be == null) return ActionResult.PASS;
+
+        ItemStack main = player.getStackInHand(Hand.MAIN_HAND);
+        ItemStack off = player.getStackInHand(Hand.OFF_HAND);
+
+        if (FramedTags.isFramedStack(main) || FramedTags.isFramedStack(off)) {
+            return ActionResult.PASS;
+        }
+
+        int part = pickPartIndex(state, hit, pos);
+        boolean hasCamo = be.hasCamoPart(part);
+        boolean hasWrench = main.isOf(ModItems.WRENCH) || off.isOf(ModItems.WRENCH);
+        boolean hasHammer = main.isOf(ModItems.HAMMER) || off.isOf(ModItems.HAMMER);
+
+        if (hasWrench) {
+            if (hasCamo && !world.isClient()) {
+                be.cycleCamoRotPart(part);
+            }
+            return ActionResult.SUCCESS;
+        }
+
+        if (hasHammer) {
+            if (!hasCamo) {
+                return ActionResult.SUCCESS;
+            }
+
+            Hand hammerHand = main.isOf(ModItems.HAMMER) ? Hand.MAIN_HAND : Hand.OFF_HAND;
+            ActionResult result = FramedCamoLogic.onUse(world, player, hammerHand, be, part, false);
+            return result == ActionResult.PASS ? ActionResult.SUCCESS : result;
+        }
+
+        if (!hasCamo) {
+            boolean mainCanApply = main.getItem() instanceof BlockItem;
+            boolean offCanApply = off.getItem() instanceof BlockItem;
+
+            ActionResult result = ActionResult.PASS;
+            if (mainCanApply) {
+                result = FramedCamoLogic.onUse(world, player, Hand.MAIN_HAND, be, part, false);
+            }
+            if (result == ActionResult.PASS && offCanApply) {
+                result = FramedCamoLogic.onUse(world, player, Hand.OFF_HAND, be, part, false);
+            }
+
+            if (result != ActionResult.PASS) {
+                return result;
+            }
+        }
+
+        return ActionResult.PASS;
     }
 }
