@@ -121,9 +121,10 @@ public final class FramedUseHandler {
         }
 
 
-        // Doors: you can keep this (bottom=0, top=1)
+        // Each door half owns its own block entity and uses that entity's part 0.
+        // Splitting by the hit height stored camo in part 1, which the door model never rendered.
         if (state.getBlock() instanceof net.minecraft.world.level.block.DoorBlock) {
-            return (localY >= 0.5) ? 1 : 0;
+            return 0;
         }
 
         return 0;

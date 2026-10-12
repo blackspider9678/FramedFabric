@@ -19,17 +19,23 @@ fabricApi {
     configureDataGeneration() {
         client = true
     }
+    configureTests {
+        createSourceSet = true
+        modId = 'framedfabric-render-tests'
+        enableGameTests = false
+        enableClientGameTests = true
+    }
 }
 
 loom {
     runs {
         // Keep dev launches isolated from older mod jars left in previous run directories.
         client {
-            runDir = "run-26.1.2"
+            runDir = "run-${project.minecraft_version}"
         }
 
         server {
-            runDir = "run-26.1.2"
+            runDir = "run-${project.minecraft_version}"
         }
     }
 }

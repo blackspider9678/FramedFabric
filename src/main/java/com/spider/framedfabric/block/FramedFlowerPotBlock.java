@@ -152,7 +152,7 @@ public class FramedFlowerPotBlock extends AbstractFramedEntityBlock implements S
 
         // Also accept common vanilla/mod tags if used
         if (s.is(net.minecraft.tags.BlockTags.FLOWERS)) return true;
-        if (s.is(net.minecraft.tags.BlockTags.SAPLINGS)) return true;
+        if (b instanceof net.minecraft.world.level.block.SaplingBlock) return true;
         if (s.is(net.minecraft.tags.BlockTags.CROPS)) return true;
 
         return false;
