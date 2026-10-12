@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.block.enums.VerticalSlabType;
@@ -40,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedVerticalSlabBlock extends Block implements EntityBlock, SimpleWaterloggedBlock {
-    public static final MapCodec<FramedVerticalSlabBlock> CODEC = simpleCodec(FramedVerticalSlabBlock::new);
 
     public static final BooleanProperty HAS_CAMO = BooleanProperty.create("has_camo");
 
@@ -69,11 +67,6 @@ public class FramedVerticalSlabBlock extends Block implements EntityBlock, Simpl
         );
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<? extends Block> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

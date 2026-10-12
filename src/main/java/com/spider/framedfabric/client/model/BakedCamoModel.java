@@ -7,15 +7,16 @@ import com.spider.framedfabric.block.custom.FramedCheckeredVerticalSlabBlock;
 import com.spider.framedfabric.block.custom.FramedVerticalSlabBlock;
 import com.spider.framedfabric.block.enums.VerticalSlabType;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import net.fabricmc.fabric.api.client.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadTransform;
 import net.fabricmc.fabric.api.client.renderer.v1.model.FabricBlockStateModel;
+import net.fabricmc.fabric.api.client.renderer.v1.sprite.FabricTextureAtlas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
@@ -80,7 +81,7 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
 
             parts[i] = new PartRender(
                     framed.getCamoRotPart(i),
-                    pickFaceInfo(camoModel),
+                    pickFaceInfo(camoModel, view, pos, camo),
                     fallbackMaterial
             );
         }
@@ -148,14 +149,15 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
 
             quad.nominalFace(outFace);
 
-            boolean isMiniCube = state.getBlock() instanceof FramedMiniCubeBlock;
-            int bakeFlags = (isMiniCube ? 0 : MutableQuadView.BAKE_LOCK_UV) | bakeRotFlag(faceMap.uvTurnsCW());
-
-            quad.materialBake(material, bakeFlags);
-
-            if (isMiniCube) {
-                stretchUvToFullSprite(quad, material.sprite());
+            if (state.getBlock() instanceof FramedMiniCubeBlock) {
+                stretchUvToUnitSquare(quad);
+            } else {
+                projectLockedUv(quad, outFace);
+                fitUvToUnitSquare(quad);
             }
+            // Bound UVs before baking: Fabric classifies transparency during materialBake,
+            // so out-of-sprite UVs must never reach that call.
+            quad.materialBake(material, MutableQuadView.BAKE_NORMALIZED | bakeRotFlag(faceMap.uvTurnsCW()));
 
             SlabType slabType = isSlab ? state.getValue(SlabBlock.TYPE) : null;
 
@@ -173,8 +175,11 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         };
 
         emitter.pushTransform(transform);
-        ((FabricBlockStateModel) parent).emitQuads(emitter, view, pos, state, random, cullTest);
-        emitter.popTransform();
+        try {
+            ((FabricBlockStateModel) parent).emitQuads(emitter, view, pos, state, random, cullTest);
+        } finally {
+            emitter.popTransform();
+        }
     }
 
     @Override
@@ -291,27 +296,22 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         };
     }
 
-    private static Map<Direction, FaceInfo> pickFaceInfo(BlockStateModel model) {
+    private static Map<Direction, FaceInfo> pickFaceInfo(
+            BlockStateModel model, BlockAndTintGetter view, BlockPos pos, BlockState camo
+    ) {
         EnumMap<Direction, FaceInfo> out = new EnumMap<>(Direction.class);
-        List<BlockStateModelPart> parts = new ArrayList<>();
-
-        model.collectParts(RandomSource.create(0L), parts);
-
-        for (BlockStateModelPart part : parts) {
-            for (Direction direction : Direction.values()) {
-                List<BakedQuad> quads = part.getQuads(direction);
-                if (!quads.isEmpty() && !out.containsKey(direction)) {
-                    BakedQuad quad = quads.getFirst();
-                    Material.Baked material = new Material.Baked(quad.materialInfo().sprite(), false);
-                    out.put(direction, new FaceInfo(material, quad.materialInfo().tintIndex()));
-                }
+        // Fabric models may emit geometry without implementing vanilla collectParts.
+        // Include unculled faces and retain the source model's transparency and tint.
+        QuadEmitter collector = Renderer.get().quadEmitter(quad -> {
+            Direction direction = quad.lightFace();
+            if (!out.containsKey(direction)) {
+                var atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(quad.atlas().getId());
+                TextureAtlasSprite sprite = ((FabricTextureAtlas) atlas).spriteFinder().find(quad);
+                Material.Baked material = new Material.Baked(sprite, quad.chunkLayer().translucent());
+                out.put(direction, new FaceInfo(material, quad.tintIndex()));
             }
-
-            if (out.size() == Direction.values().length) {
-                break;
-            }
-        }
-
+        });
+        ((FabricBlockStateModel) model).emitQuads(collector, view, pos, camo, RandomSource.create(0L), face -> false);
         return out;
     }
 
@@ -413,7 +413,44 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
         return (x >= 0.5F) ? 1 : 0;
     }
 
-    private static void stretchUvToFullSprite(MutableQuadView quad, TextureAtlasSprite sprite) {
+    private static void projectLockedUv(MutableQuadView quad, Direction face) {
+        for (int i = 0; i < 4; i++) {
+            switch (face) {
+                case DOWN -> quad.uv(i, quad.x(i), 1F - quad.z(i));
+                case UP -> quad.uv(i, quad.x(i), quad.z(i));
+                case NORTH -> quad.uv(i, 1F - quad.x(i), 1F - quad.y(i));
+                case SOUTH -> quad.uv(i, quad.x(i), 1F - quad.y(i));
+                case WEST -> quad.uv(i, quad.z(i), 1F - quad.y(i));
+                case EAST -> quad.uv(i, 1F - quad.z(i), 1F - quad.y(i));
+            }
+        }
+    }
+
+    private static void fitUvToUnitSquare(MutableQuadView quad) {
+        float minU = Float.POSITIVE_INFINITY;
+        float maxU = Float.NEGATIVE_INFINITY;
+        float minV = Float.POSITIVE_INFINITY;
+        float maxV = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < 4; i++) {
+            minU = Math.min(minU, quad.u(i));
+            maxU = Math.max(maxU, quad.u(i));
+            minV = Math.min(minV, quad.v(i));
+            maxV = Math.max(maxV, quad.v(i));
+        }
+        // Locked UVs follow block coordinates. Bars and other models can extend past
+        // the block boundary; move those UV rectangles inside their sprite, scaling
+        // only when a face spans more than a whole block.
+        float scaleU = maxU > minU ? Math.min(1F, 1F / (maxU - minU)) : 1F;
+        float scaleV = maxV > minV ? Math.min(1F, 1F / (maxV - minV)) : 1F;
+        float startU = Math.max(0F, Math.min(minU, 1F - (maxU - minU) * scaleU));
+        float startV = Math.max(0F, Math.min(minV, 1F - (maxV - minV) * scaleV));
+        for (int i = 0; i < 4; i++) {
+            quad.uv(i, Math.clamp(startU + (quad.u(i) - minU) * scaleU, 0F, 1F),
+                    Math.clamp(startV + (quad.v(i) - minV) * scaleV, 0F, 1F));
+        }
+    }
+
+    private static void stretchUvToUnitSquare(MutableQuadView quad) {
         float u0 = quad.u(0);
         float v0 = quad.v(0);
         float u1 = quad.u(1);
@@ -434,17 +471,10 @@ public final class BakedCamoModel implements BlockStateModel, FabricBlockStateMo
             return;
         }
 
-        float spriteU0 = sprite.getU0();
-        float spriteU1 = sprite.getU1();
-        float spriteV0 = sprite.getV0();
-        float spriteV1 = sprite.getV1();
-        float spriteDU = spriteU1 - spriteU0;
-        float spriteDV = spriteV1 - spriteV0;
-
         for (int i = 0; i < 4; i++) {
             float normalizedU = (quad.u(i) - uMin) / du;
             float normalizedV = (quad.v(i) - vMin) / dv;
-            quad.uv(i, spriteU0 + normalizedU * spriteDU, spriteV0 + normalizedV * spriteDV);
+            quad.uv(i, normalizedU, normalizedV);
         }
     }
 

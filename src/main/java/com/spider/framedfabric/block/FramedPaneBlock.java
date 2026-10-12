@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.registry.ModBlockEntities;
@@ -19,17 +18,12 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedPaneBlock extends IronBarsBlock implements net.minecraft.world.level.block.EntityBlock {
 
-    public static final MapCodec<FramedPaneBlock> CODEC = simpleCodec(FramedPaneBlock::new);
 
     public FramedPaneBlock(Properties settings) {
         super(settings);
         registerDefaultState(defaultBlockState().setValue(HAS_CAMO, false));
     }
 
-    @Override
-    public MapCodec<? extends IronBarsBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

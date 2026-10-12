@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
@@ -24,18 +23,12 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedDoorBlock extends DoorBlock implements EntityBlock {
 
-    public static final MapCodec<FramedDoorBlock> CODEC = simpleCodec(FramedDoorBlock::new);
 
     public FramedDoorBlock(Properties settings) {
         super(BlockSetType.OAK, settings);
         this.registerDefaultState(this.getStateDefinition().any().setValue(HAS_CAMO, false));
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<DoorBlock> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

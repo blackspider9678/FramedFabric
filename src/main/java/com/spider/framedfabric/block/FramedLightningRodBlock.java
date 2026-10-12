@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
@@ -28,7 +27,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedLightningRodBlock extends LightningRodBlock implements EntityBlock {
-    public static final MapCodec<FramedLightningRodBlock> CODEC = simpleCodec(FramedLightningRodBlock::new);
 
     public FramedLightningRodBlock(Properties settings) {
         super(settings);
@@ -49,11 +47,6 @@ public class FramedLightningRodBlock extends LightningRodBlock implements Entity
         super.onLightningStrike(state, world, pos);
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<LightningRodBlock> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

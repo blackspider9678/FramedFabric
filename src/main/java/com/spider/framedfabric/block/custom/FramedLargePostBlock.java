@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -30,7 +29,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedLargePostBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final MapCodec<FramedLargePostBlock> CODEC = simpleCodec(FramedLargePostBlock::new);
 
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
@@ -56,10 +54,6 @@ public class FramedLargePostBlock extends AbstractFramedEntityBlock implements S
         builder.add(HAS_CAMO, BlockStateProperties.WATERLOGGED, AXIS);
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {

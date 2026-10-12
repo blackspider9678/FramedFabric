@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.registry.ModBlockEntities;
@@ -38,10 +37,6 @@ public class FramedSlopeBlock extends AbstractFramedEntityBlock implements Simpl
         );
     }
 
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return null;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

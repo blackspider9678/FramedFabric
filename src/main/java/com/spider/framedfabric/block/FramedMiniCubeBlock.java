@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
 
-    public static final MapCodec<FramedMiniCubeBlock> CODEC = simpleCodec(FramedMiniCubeBlock::new);
 
     // head-like placement props (1.21.11)
     public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;          // FLOOR / WALL / CEILING
@@ -48,10 +46,6 @@ public class FramedMiniCubeBlock extends AbstractFramedEntityBlock {
         );
     }
 
-    @Override
-    protected MapCodec<? extends FramedMiniCubeBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

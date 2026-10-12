@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "framedfabric-render-tests",
+  "version": "1.0.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.spider.framedfabric.test.CamoRenderingTest"],
+    "fabric-client-gametest": ["com.spider.framedfabric.test.CamoRenderingTest"]
+  },
+  "depends": {
+    "framedfabric": "*",
+    "fabric-client-gametest-api-v1": "*"
+  }
+}

@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -34,7 +33,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedCornerCubeBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
 
-    public static final MapCodec<FramedCornerCubeBlock> CODEC = simpleCodec(FramedCornerCubeBlock::new);
 
     public enum Corner implements StringRepresentable {
         NW("nw"), NE("ne"), SW("sw"), SE("se");
@@ -178,10 +176,6 @@ public class FramedCornerCubeBlock extends AbstractFramedEntityBlock implements 
         builder.add(HAS_CAMO, BlockStateProperties.WATERLOGGED, CORNER, HALF);
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {

@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -22,7 +21,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedCheckeredBlock extends AbstractFramedEntityBlock {
 
-    public static final MapCodec<FramedCheckeredBlock> CODEC = simpleCodec(FramedCheckeredBlock::new);
 
     public FramedCheckeredBlock(Properties settings) {
         super(settings);
@@ -40,10 +38,6 @@ public class FramedCheckeredBlock extends AbstractFramedEntityBlock {
         builder.add(HAS_CAMO, BlockStateProperties.WATERLOGGED);
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {

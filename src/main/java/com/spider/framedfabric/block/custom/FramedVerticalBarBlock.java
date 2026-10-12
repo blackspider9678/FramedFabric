@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.block.enums.VerticalBarShape;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
@@ -34,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedVerticalBarBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<FramedVerticalBarBlock> CODEC = simpleCodec(FramedVerticalBarBlock::new);
 
     public enum Corner implements StringRepresentable {
         NW("nw"),
@@ -75,10 +73,6 @@ public class FramedVerticalBarBlock extends AbstractFramedEntityBlock implements
         );
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

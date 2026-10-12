@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedFlowerPotBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<FramedFlowerPotBlock> CODEC = simpleCodec(FramedFlowerPotBlock::new);
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -49,10 +47,6 @@ public class FramedFlowerPotBlock extends AbstractFramedEntityBlock implements S
         );
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -114,7 +108,7 @@ public class FramedFlowerPotBlock extends AbstractFramedEntityBlock implements S
             if (!world.isClientSide()) {
                 ItemStack out = be.getPotPlantStack();
                 be.setPotPlantStack(ItemStack.EMPTY);
-                if (!player.getInventory().add(out)) player.drop(out, false);
+                if (!player.getInventory().add(out)) player.drop(out, false, net.minecraft.util.Prediction.SERVER_ONLY);
             }
             return InteractionResult.SUCCESS;
         }
@@ -152,7 +146,7 @@ public class FramedFlowerPotBlock extends AbstractFramedEntityBlock implements S
 
         // Also accept common vanilla/mod tags if used
         if (s.is(net.minecraft.tags.BlockTags.FLOWERS)) return true;
-        if (s.is(net.minecraft.tags.BlockTags.SAPLINGS)) return true;
+        if (b instanceof net.minecraft.world.level.block.SaplingBlock) return true;
         if (s.is(net.minecraft.tags.BlockTags.CROPS)) return true;
 
         return false;

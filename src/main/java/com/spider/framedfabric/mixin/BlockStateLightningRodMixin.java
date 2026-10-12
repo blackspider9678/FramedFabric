@@ -21,7 +21,7 @@ public abstract class BlockStateLightningRodMixin {
     )
     private void framedfabric$lightningRodIsOfTag(Holder<Block> entry, CallbackInfoReturnable<Boolean> cir) {
         // Only intercept checks that are explicitly asking: "is this a lightning rod?"
-        if (entry.value() == Blocks.LIGHTNING_ROD) {
+        if (Blocks.LIGHTNING_ROD.asList().contains(entry.value())) {
             BlockState self = (BlockState) (Object) this;
 
             // If our block is in the lightning rods tag, pretend it is a vanilla lightning rod

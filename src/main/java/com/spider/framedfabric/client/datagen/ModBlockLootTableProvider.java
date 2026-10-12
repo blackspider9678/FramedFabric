@@ -7,7 +7,7 @@ import com.spider.framedfabric.registry.ModBlocks;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.advancements.predicates.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
@@ -16,8 +16,8 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.predicates.MatchBlock;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
 
 public class ModBlockLootTableProvider extends FabricBlockLootSubProvider {
     public ModBlockLootTableProvider(
@@ -63,12 +63,11 @@ public class ModBlockLootTableProvider extends FabricBlockLootSubProvider {
     ) {
         return LootTable.lootTable()
                 .withPool(LootPool.lootPool()
-                        .setRolls(ConstantValue.exactly(1.0F))
+                        .setRolls(net.minecraft.core.Holder.direct(new ConstantValue(1)))
                         .add(applyExplosionDecay(block,
                                 LootItem.lootTableItem(block)
-                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F))
-                                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                                                        .setProperties(StatePropertiesPredicate.Builder.properties()
-                                                                .hasProperty(property, doubledValue)))))));
+                                        .apply(SetItemCountFunction.setCount(net.minecraft.core.Holder.direct(new ConstantValue(2)))
+                                                .when(MatchBlock.blockMatches(blocks, block,
+                                                        StatePropertiesPredicate.Builder.properties().hasProperty(property, doubledValue)))))));
     }
 }

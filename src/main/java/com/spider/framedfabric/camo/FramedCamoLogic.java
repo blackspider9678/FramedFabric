@@ -57,7 +57,7 @@ public final class FramedCamoLogic {
     private static void giveOrDrop(Player player, ItemStack stack) {
         if (stack.isEmpty()) return;
         if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
+            player.drop(stack, false, net.minecraft.util.Prediction.SERVER_ONLY);
         }
     }
 }

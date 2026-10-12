@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -35,7 +34,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class FramedLadderBlock extends AbstractFramedEntityBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<FramedLadderBlock> CODEC = simpleCodec(FramedLadderBlock::new);
 
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -53,10 +51,6 @@ public class FramedLadderBlock extends AbstractFramedEntityBlock implements Simp
                 .setValue(WATERLOGGED, false));
     }
 
-    @Override
-    public MapCodec<? extends FramedLadderBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

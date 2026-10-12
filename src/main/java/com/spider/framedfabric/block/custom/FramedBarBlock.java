@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.block.enums.BarShape;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedBarBlock extends AbstractFramedEntityBlock {
-    public static final MapCodec<FramedBarBlock> CODEC = simpleCodec(FramedBarBlock::new);
 
     // mapping-proof: avoid DirectionProperty
     public static final Property<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -50,10 +48,6 @@ public class FramedBarBlock extends AbstractFramedEntityBlock {
         );
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

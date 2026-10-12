@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedFenceGateBlock extends FenceGateBlock implements EntityBlock {
-    public static final MapCodec<FramedFenceGateBlock> CODEC = simpleCodec(FramedFenceGateBlock::new);
 
     public static final BooleanProperty HAS_CAMO = BooleanProperty.create("has_camo");
 
@@ -43,11 +41,6 @@ public class FramedFenceGateBlock extends FenceGateBlock implements EntityBlock 
         builder.add(HAS_CAMO, ROT);
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<FenceGateBlock> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

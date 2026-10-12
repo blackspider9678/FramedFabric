@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
@@ -27,8 +26,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedStairsBlock extends StairBlock implements EntityBlock {
     // IMPORTANT: baseState must NOT be null
-    public static final MapCodec<FramedStairsBlock> CODEC =
-            simpleCodec(s -> new FramedStairsBlock(Blocks.OAK_PLANKS.defaultBlockState(), s));
 
     public static final BooleanProperty HAS_CAMO = BooleanProperty.create("has_camo");
 
@@ -43,11 +40,6 @@ public class FramedStairsBlock extends StairBlock implements EntityBlock {
     }
 
     // Same codec-cast trick as slab (keeps 1.21.11 happy)
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<StairBlock> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

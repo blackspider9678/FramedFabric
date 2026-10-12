@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.AbstractFramedEntityBlock;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
@@ -16,7 +15,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import static com.spider.framedfabric.blockentity.FramedProperties.HAS_CAMO;
 
 public class FramedBlock extends AbstractFramedEntityBlock {
-    public static final MapCodec<FramedBlock> CODEC = simpleCodec(FramedBlock::new);
 
     public FramedBlock(Properties settings) {
         super(settings);
@@ -33,10 +31,6 @@ public class FramedBlock extends AbstractFramedEntityBlock {
         builder.add(HAS_CAMO);
     }
 
-    @Override
-    protected MapCodec<? extends AbstractFramedEntityBlock> codec() {
-        return CODEC;
-    }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {

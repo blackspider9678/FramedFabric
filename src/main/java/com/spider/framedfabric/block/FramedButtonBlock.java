@@ -1,6 +1,5 @@
 package com.spider.framedfabric.block;
 
-import com.mojang.serialization.MapCodec;
 import com.spider.framedfabric.blockentity.FramedBlockEntity;
 import com.spider.framedfabric.blockentity.FramedUseHandler;
 import com.spider.framedfabric.camo.FramedCamoLogic;
@@ -26,7 +25,6 @@ import static com.spider.framedfabric.blockentity.FramedProperties.ROT;
 
 public class FramedButtonBlock extends ButtonBlock implements EntityBlock {
 
-    public static final MapCodec<FramedButtonBlock> CODEC = simpleCodec(FramedButtonBlock::new);
 
     public FramedButtonBlock(Properties settings) {
         super(BlockSetType.OAK, 30, settings);
@@ -39,11 +37,6 @@ public class FramedButtonBlock extends ButtonBlock implements EntityBlock {
 
     }
 
-    @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public MapCodec<ButtonBlock> codec() {
-        return (MapCodec) CODEC;
-    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
